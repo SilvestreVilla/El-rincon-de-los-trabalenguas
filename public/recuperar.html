@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recuperar contraseña · El Rincón de los Trabalenguas</title>
+  <meta name="description" content="Recibe un enlace para crear una contraseña nueva.">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <script type="module" src="js/recuperar.js"></script>
+</head>
+<body>
+  <header class="encabezado">
+    <nav aria-label="Principal">
+      <a href="index.html" class="marca"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#3346D3"/><path d="M9 13h16M9 18h11M9 23h7" stroke="#FFE27A" stroke-width="2.6" stroke-linecap="round"/></svg><span>El Rincón de los Trabalenguas</span></a>
+      <div class="nav-enlaces">
+        <a href="index.html" class="nav-texto">Catálogo</a>
+        <div id="nav-sesion" class="nav-enlaces">
+          <a href="login.html" class="boton boton-secundario">Iniciar sesión</a>
+          <a href="registro.html" class="boton">Crear cuenta</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="contenedor-form">
+      <header>
+        <h1>Recupera tu contraseña</h1>
+        <p class="bajada">Escribe el correo de tu cuenta y te enviaremos un enlace para crear una contraseña nueva.</p>
+      </header>
+
+      <form id="form-recuperar" class="tarjeta-form" novalidate>
+        <div id="aviso" class="aviso oculto" role="alert"></div>
+        <div class="campo">
+          <label for="correo">Correo electrónico</label>
+          <input id="correo" name="correo" type="email" autocomplete="email" required aria-describedby="error-correo">
+          <span id="error-correo" class="error-campo oculto"></span>
+        </div>
+        <button type="submit" id="enviar" class="boton boton-bloque">Enviar enlace</button>
+      </form>
+
+      <div id="enviado" class="tarjeta-form oculto" role="status">
+        <h2>Revisa tu correo</h2>
+        <p>Si <strong id="correo-enviado"></strong> está registrado, te enviamos un enlace para restablecer tu contraseña. Puede tardar unos minutos; revisa también la carpeta de spam.</p>
+        <button type="button" id="otro-correo" class="boton boton-secundario">Usar otro correo</button>
+      </div>
+
+      <p class="pie-form"><a href="login.html">Volver a iniciar sesión</a></p>
+    </div>
+  </main>
+
+  <footer class="pie">
+    <div>
+      <span>El Rincón de los Trabalenguas · v0.1</span>
+      <a href="privacidad.html">Aviso de privacidad</a>
+    </div>
+  </footer>
+</body>
+</html>
