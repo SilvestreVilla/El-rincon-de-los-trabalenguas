@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crear cuenta · El Rincón de los Trabalenguas</title>
+  <meta name="description" content="Crea tu cuenta para guardar tu progreso.">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <script type="module" src="js/registro.js"></script>
+</head>
+<body>
+  <header class="encabezado">
+    <nav aria-label="Principal">
+      <a href="index.html" class="marca"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#3346D3"/><path d="M9 13h16M9 18h11M9 23h7" stroke="#FFE27A" stroke-width="2.6" stroke-linecap="round"/></svg><span>El Rincón de los Trabalenguas</span></a>
+      <div class="nav-enlaces">
+        <a href="index.html" class="nav-texto">Catálogo</a>
+        <div id="nav-sesion" class="nav-enlaces">
+          <a href="login.html" class="boton boton-secundario">Iniciar sesión</a>
+          <a href="registro.html" class="boton">Crear cuenta</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="contenedor-form">
+      <header>
+        <h1>Crea tu cuenta</h1>
+        <p class="bajada">Guarda tu progreso y practica desde cualquier dispositivo.</p>
+      </header>
+
+      <form id="form-registro" class="tarjeta-form" novalidate>
+        <div id="aviso" class="aviso oculto" role="alert"></div>
+
+        <div class="campo">
+          <label for="correo">Correo electrónico</label>
+          <input id="correo" name="correo" type="email" autocomplete="email" placeholder="nombre@empresa.com" required aria-describedby="error-correo">
+          <span id="error-correo" class="error-campo oculto"></span>
+        </div>
+
+        <div class="campo">
+          <label for="contrasena">Contraseña</label>
+          <input id="contrasena" name="contrasena" type="password" autocomplete="new-password" minlength="8" required aria-describedby="ayuda-contrasena error-contrasena">
+          <span id="ayuda-contrasena" class="ayuda">Mínimo 8 caracteres.</span>
+          <span id="error-contrasena" class="error-campo oculto"></span>
+        </div>
+
+        <div class="casillas">
+          <div class="casilla">
+            <input id="privacidad" name="privacidad" type="checkbox" required>
+            <label for="privacidad">Leí y acepto el <a href="privacidad.html" target="_blank" rel="noopener">aviso de privacidad</a>.</label>
+          </div>
+          <div class="casilla">
+            <input id="mayor-edad" name="mayorEdad" type="checkbox" required>
+            <label for="mayor-edad">Confirmo que soy mayor de edad.</label>
+          </div>
+          <span id="error-casillas" class="error-campo oculto"></span>
+        </div>
+
+        <button type="submit" id="enviar" class="boton boton-bloque">Crear cuenta</button>
+      </form>
+
+      <p class="pie-form">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
+    </div>
+  </main>
+
+  <footer class="pie">
+    <div>
+      <span>El Rincón de los Trabalenguas · v0.1</span>
+      <a href="privacidad.html">Aviso de privacidad</a>
+    </div>
+  </footer>
+</body>
+</html>

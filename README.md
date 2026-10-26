@@ -61,7 +61,10 @@ Levanta el emulador de Firestore, corre las 16 pruebas de `tests/reglas.test.js`
 3. **Authentication → Plantillas:** cambia el idioma de las plantillas de correo a español.
 4. **Firestore Database:** créala en modo producción (región `nam5` o la más cercana).
 5. **Configuración del proyecto → Tus apps:** registra una app web y copia el objeto `firebaseConfig` en `public/js/firebase-config.js`.
-6. En `.firebaserc` cambia `demo-rincon-trabalenguas` por el ID real del proyecto.
+6. En `.firebaserc` va el ID real del proyecto.
+
+> Ya hecho para el proyecto `rincon-de-los-trabalenguas` (región `nam5`, plan Spark). Los emuladores siguen usando el proyecto `demo-rincon-trabalenguas`, así que las pruebas locales nunca tocan producción.
+
 7. Despliega:
 
 ```bash

@@ -1,0 +1,55 @@
+rules_version = '2';
+
+// Reglas de seguridad de El Rincón de los Trabalenguas.
+// Sprint 1: usuarios (HU-01, HU-02) y lectura del catálogo aprobado (HU-04, HU-05).
+// Las escrituras de trabalenguas desde el cliente llegan en el Sprint 3 (HU-12, HU-13);
+// mientras tanto, la semilla se carga con scripts/seed.js (Admin SDK, que no pasa por estas reglas).
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function autenticado() {
+      return request.auth != null;
+    }
+
+    function esDueno(uid) {
+      return autenticado() && request.auth.uid == uid;
+    }
+
+    // ---------- usuarios/{uid} ----------
+    // El correo es privado: solo el dueño lee su documento.
+    match /usuarios/{uid} {
+      allow read: if esDueno(uid);
+
+      // HU-01: el registro crea el documento con rol «usuario»,
+      // la aceptación del aviso de privacidad y la mayoría de edad.
+      allow create: if esDueno(uid)
+        && request.resource.data.keys().hasOnly(['email', 'rol', 'aceptoPrivacidad', 'mayorDeEdad', 'creado'])
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.rol == 'usuario'
+        && request.resource.data.aceptoPrivacidad == true
+        && request.resource.data.mayorDeEdad == true
+        && request.resource.data.creado == request.time;
+
+      // Nadie cambia su propio rol ni su correo desde el cliente.
+      allow update: if esDueno(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([]);
+
+      // La eliminación de cuenta llega en el Sprint 4 (HU-18).
+      allow delete: if false;
+    }
+
+    // ---------- trabalenguas/{id} ----------
+    // HU-04 y HU-05: cualquiera, con o sin sesión, lee solo los aprobados.
+    // Un trabalenguas pendiente o rechazado se comporta como «no encontrado».
+    match /trabalenguas/{id} {
+      allow read: if resource.data.estado == 'aprobado';
+      allow write: if false;
+    }
+
+    // Cualquier otra colección queda cerrada.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
