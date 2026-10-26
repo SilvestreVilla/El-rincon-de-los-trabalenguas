@@ -1,0 +1,7 @@
+node_modules/
+.emulador/
+*.log
+.firebase/
+serviceAccount*.json
+.env
+.DS_Store
