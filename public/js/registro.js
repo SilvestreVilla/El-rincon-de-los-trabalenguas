@@ -32,6 +32,7 @@ function validar() {
 const MENSAJES = {
   'auth/invalid-email': 'El correo no es válido.',
   'auth/weak-password': 'La contraseña es muy débil. Usa 8 caracteres o más.',
+  'auth/password-does-not-meet-requirements': 'La contraseña debe tener 8 caracteres o más.',
   'auth/network-request-failed': 'No hay conexión. Revisa tu internet e intenta de nuevo.',
   'auth/too-many-requests': 'Hubo demasiados intentos. Espera unos minutos e intenta de nuevo.',
 };
