@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mi perfil · El Rincón de los Trabalenguas</title>
+  <meta name="description" content="Tu cuenta en El Rincón de los Trabalenguas.">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <script type="module" src="js/perfil.js"></script>
+</head>
+<body>
+  <header class="encabezado">
+    <nav aria-label="Principal">
+      <a href="index.html" class="marca"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#3346D3"/><path d="M9 13h16M9 18h11M9 23h7" stroke="#FFE27A" stroke-width="2.6" stroke-linecap="round"/></svg><span>El Rincón de los Trabalenguas</span></a>
+      <div class="nav-enlaces">
+        <a href="index.html" class="nav-texto">Catálogo</a>
+        <div id="nav-sesion" class="nav-enlaces">
+          <a href="login.html" class="boton boton-secundario">Iniciar sesión</a>
+          <a href="registro.html" class="boton">Crear cuenta</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="contenedor-form">
+      <p id="perfil-cargando" class="detalle-ayuda" aria-live="polite">Cargando tu perfil…</p>
+      <div id="bienvenida" class="aviso aviso-ok oculto" role="status">Tu cuenta quedó creada. Ya puedes explorar el catálogo.</div>
+      <section id="perfil" class="tarjeta-form perfil oculto" aria-labelledby="perfil-titulo">
+        <h1 id="perfil-titulo">Mi perfil</h1>
+        <dl>
+          <dt>Correo</dt><dd id="perfil-correo"></dd>
+          <dt>Rol</dt><dd id="perfil-rol"></dd>
+          <dt>Miembro desde</dt><dd id="perfil-desde"></dd>
+        </dl>
+        <p class="ayuda">Tu sesión se mantiene aunque recargues la página. Para salir de este dispositivo, cierra sesión.</p>
+        <div class="acciones">
+          <a href="index.html" class="boton">Ir al catálogo</a>
+          <button type="button" id="cerrar-sesion" class="boton boton-secundario">Cerrar sesión</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="pie">
+    <div>
+      <span>El Rincón de los Trabalenguas · v0.1</span>
+      <a href="privacidad.html">Aviso de privacidad</a>
+    </div>
+  </footer>
+</body>
+</html>
