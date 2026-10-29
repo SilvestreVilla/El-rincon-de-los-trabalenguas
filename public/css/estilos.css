@@ -107,6 +107,30 @@ main { flex: 1; width: 100%; max-width: 1200px; margin: 0 auto; padding: 36px 20
 .area-liderazgo { background: #f0e6fa; color: #6a2f9e; }
 .dificultad { font-size: 0.85rem; color: var(--gris); white-space: nowrap; }
 
+/* ---------- Búsqueda y filtros (HU-06) ---------- */
+.filtros {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: end;
+  padding: 18px;
+  margin-bottom: 18px;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+}
+.filtros .boton { width: 100%; }
+@media (min-width: 720px) {
+  .filtros { grid-template-columns: 2fr 1fr 1fr auto; }
+  .filtros .boton { width: auto; }
+}
+
+input[type="search"], select {
+  font: inherit; font-size: 1rem; min-height: 46px; padding: 10px 14px; width: 100%;
+  border: 1px solid var(--linea-fuerte); border-radius: 10px; background: var(--superficie); color: var(--tinta);
+}
+select:focus-visible { outline: none; border-color: var(--acento); box-shadow: var(--sombra-foco); }
+
 /* Estado de carga (T1-18) */
 .esqueleto { display: flex; flex-direction: column; gap: 14px; padding: 20px; height: 196px; background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio); }
 .esqueleto span { display: block; height: 14px; border-radius: 6px; background: #e4e7f0; animation: latido 1.4s ease-in-out infinite; }
