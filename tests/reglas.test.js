@@ -299,3 +299,27 @@ describe('envíos (HU-12)', () => {
     if (catalogo.size !== 1) throw new Error('el catálogo solo debía tener el trabalenguas aprobado de la semilla');
   });
 });
+
+describe('mis envíos (HU-15)', () => {
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      const base = { titulo: 'T', texto: 'Texto de prueba con más de veinte caracteres.', concepto: 'C', definicion: 'D', area: 'Scrum', dificultad: 'Fácil', creado: new Date() };
+      await setDoc(doc(db, 'envios/ana1'), { ...base, autorId: 'ana', estado: 'pendiente' });
+      await setDoc(doc(db, 'envios/ana2'), { ...base, autorId: 'ana', estado: 'rechazado', motivo: 'La definición no corresponde al concepto.' });
+      await setDoc(doc(db, 'envios/beto1'), { ...base, autorId: 'beto', estado: 'pendiente' });
+    });
+  });
+
+  test('el autor ve todos sus envíos, con el motivo de los rechazados', async () => {
+    const mios = await assertSucceeds(getDocs(query(collection(ana(), 'envios'), where('autorId', '==', 'ana'))));
+    if (mios.size !== 2) throw new Error('ana debía ver sus 2 envíos');
+    const rechazado = mios.docs.find((d) => d.id === 'ana2').data();
+    if (!rechazado.motivo) throw new Error('el motivo del rechazo debía ser visible para su autor');
+  });
+
+  test('nadie ve los envíos ni los motivos de otra persona', async () => {
+    await assertFails(getDocs(query(collection(beto(), 'envios'), where('autorId', '==', 'ana'))));
+    await assertFails(getDoc(doc(beto(), 'envios/ana2')));
+  });
+});

@@ -98,6 +98,13 @@ main { flex: 1; width: 100%; max-width: 1200px; margin: 0 auto; padding: 36px 20
 .tarjeta-texto { color: var(--tinta-suave); }
 .tarjeta-concepto { margin-top: auto; border-top: 1px dashed var(--linea); padding-top: 10px; font-size: 0.85rem; color: var(--gris); }
 .tarjeta-concepto strong { color: var(--tinta); }
+/* HU-15: tarjetas de «Mis envíos» (no son enlaces) y su estado. */
+.tarjeta-estatica:hover { border-color: var(--linea); }
+.estado-envio { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
+.estado-pendiente { background: var(--resaltado); color: var(--tinta); }
+.estado-aprobado { background: var(--ok-fondo); color: var(--ok); }
+.estado-rechazado { background: var(--error-fondo); color: var(--error); }
+.motivo-rechazo { background: var(--error-fondo); color: #8e2a20; border-radius: 10px; padding: 10px 12px; font-size: 0.9rem; line-height: 1.5; }
 
 .area { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em; padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
 .area-scrum { background: #e7eafe; color: #2b3ab8; }
