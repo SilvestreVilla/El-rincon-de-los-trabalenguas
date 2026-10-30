@@ -29,13 +29,13 @@ Jira (30 oct): SCRUM-5 a SCRUM-9 están «En revisión». HU-08, HU-10 y HU-11 e
 1. **Ningún PR (#1 a #5) tiene una aprobación registrada**, y todos los integró SilvestreVilla. Hay que conseguir que otro desarrollador apruebe o comente en cada uno; sin eso no se cumple la DoD. En los PR ya integrados probablemente GitHub solo permita comentar: la evidencia será el comentario de revisión.
 2. **Proteger `main`:** Settings → Branches → regla para `main` con *Require a pull request* y *Require approvals: 1*.
 3. **HU-08:** el commit de la rama (`f27c65f`) ya está en la historia de `main` y luego se revirtió, así que un PR desde esa rama sale vacío. Hay que crear una rama nueva desde `main`, revertir el revert (`git revert efaf238`), agregar a las reglas `dominado is bool` (hoy acepta el campo sin validar el tipo) con su prueba, y abrir el PR desde ahí.
-10. **HU-11:** sacar el código del zip a una rama `HU-11-rompehielos`, abrir su PR y borrar `rompehielos-daily.zip` de `main`. Alexzzen24 no aparece en la lista de desarrolladores de `CLAUDE.md`: [COMPLETAR] confirmar si es parte del equipo.
 4. **`npm run test:reglas` nunca se ha corrido** en una computadora con Java. Las reglas se probaron a mano en producción y pasaron, pero la DoD pide la corrida automática.
 5. El editor no ha validado los 30 trabalenguas (DoD 8). El aviso de privacidad sigue en borrador.
 6. Producción (`rincon-de-los-trabalenguas.web.app`) quizá ya tenga historias del Sprint 2 sin aceptar. A producción solo debe ir lo aceptado en la Review.
 7. Detalle técnico: `npm run seed:emulador` usa sintaxis de bash y no funciona en Windows. Se puede arreglar con `cross-env` o con un script de Node.
 8. Limpieza: borrar la rama `sprint-1` (ya integrada, local y en `origin`) y las tareas de ejemplo SCRUM-1 a SCRUM-4.
 9. El comentario del encabezado de `firestore.rules` dice que HU-12 y HU-13 llegan en el Sprint 3; con la replanificación, HU-12 pasa al Sprint 2. Corregirlo en la rama de HU-12.
+10. **HU-11:** sacar el código del zip a una rama `HU-11-rompehielos`, abrir su PR y borrar `rompehielos-daily.zip` de `main`. Alexzzen24 no aparece en la lista de desarrolladores de `CLAUDE.md`: [COMPLETAR] confirmar si es parte del equipo.
 
 ## 3. Replanificación propuesta (pendiente de aplicar)
 
