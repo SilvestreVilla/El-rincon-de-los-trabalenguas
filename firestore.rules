@@ -58,7 +58,11 @@ service cloud.firestore {
         && docId.matches(request.auth.uid + '_.*')
         && request.resource.data.usuarioId == request.auth.uid
         && request.resource.data.keys().hasOnly(['usuarioId', 'trabalenguasId', 'esFavorito', 'dominado', 'mejorTiempoSeg', 'practicas', 'ultimaPractica'])
-        && (!('esFavorito' in request.resource.data) || request.resource.data.esFavorito is bool);
+        && (!('esFavorito' in request.resource.data) || request.resource.data.esFavorito is bool)
+        // HU-09: mejor tiempo (segundos, mayor a 0), número de prácticas y fecha de la última práctica.
+        && (!('mejorTiempoSeg' in request.resource.data) || (request.resource.data.mejorTiempoSeg is number && request.resource.data.mejorTiempoSeg > 0))
+        && (!('practicas' in request.resource.data) || request.resource.data.practicas is int)
+        && (!('ultimaPractica' in request.resource.data) || request.resource.data.ultimaPractica is timestamp);
 
       allow delete: if false;
     }

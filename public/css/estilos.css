@@ -215,3 +215,8 @@ input[aria-invalid="true"] { border-color: var(--error); }
 /* ---------- Favoritos (HU-07) ---------- */
 .acciones-detalle { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .boton[aria-pressed="true"] { background: var(--acento); color: #fff; border-color: var(--acento); }
+
+/* ---------- Temporizador (HU-09) ---------- */
+.temporizador { display: flex; flex-direction: column; gap: 12px; padding: 20px; background: var(--fondo); border: 1px solid var(--linea); border-radius: var(--radio); }
+.temporizador h2 { font-size: 1.1rem; }
+.tiempo { font-size: clamp(2rem, 6vw, 3rem); font-weight: 800; font-variant-numeric: tabular-nums; }

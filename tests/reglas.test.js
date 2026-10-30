@@ -155,3 +155,26 @@ describe('progreso: favoritos (HU-07)', () => {
     await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', esFavorito: 'si' }));
   });
 });
+
+describe('progreso: temporizador (HU-09)', () => {
+  test('un usuario guarda su mejor tiempo y su práctica', async () => {
+    await assertSucceeds(setDoc(doc(ana(), 'progreso/ana_t1'), {
+      usuarioId: 'ana', trabalenguasId: 't1', mejorTiempoSeg: 7.4, practicas: 1, ultimaPractica: serverTimestamp(),
+    }, { merge: true }));
+  });
+
+  test('el mejor tiempo debe ser un número mayor a 0', async () => {
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', mejorTiempoSeg: -1 }));
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', mejorTiempoSeg: 0 }));
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', mejorTiempoSeg: 'rápido' }));
+  });
+
+  test('las prácticas deben ser un entero y la fecha un timestamp', async () => {
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', practicas: 'muchas' }));
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', ultimaPractica: 'ayer' }));
+  });
+
+  test('nadie guarda tiempos en el progreso de otra persona', async () => {
+    await assertFails(setDoc(doc(beto(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', mejorTiempoSeg: 5 }));
+  });
+});

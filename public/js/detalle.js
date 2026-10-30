@@ -3,6 +3,7 @@ import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase
 import { db } from './firebase.js';
 import { etiquetaArea, etiquetaDificultad } from './ui.js';
 import { iniciarFavorito } from './favoritos.js';
+import { iniciarTemporizador } from './temporizador.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -44,6 +45,7 @@ async function cargar() {
   $('detalle').classList.remove('oculto');
 
   iniciarFavorito(id); // HU-07
+  iniciarTemporizador(id); // HU-09
 }
 
 cargar();
