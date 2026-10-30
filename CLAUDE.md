@@ -9,7 +9,7 @@ Proyecto Scrum del **Equipo 2** para la materia *Administración de Proyectos de
 
 **Producto:** «El Rincón de los Trabalenguas: aprende a administrar proyectos trabalenguando». Es una plataforma web donde equipos de trabajo practican trabalenguas construidos sobre conceptos de administración de proyectos (AP). El cliente es una editorial de software de AP: [COMPLETAR nombre]. Un representante de la editorial es el Product Owner, y un editor de contenido valida los conceptos.
 
-Lo que se califica no es solo el código, sino **la evidencia de Scrum**: backlog, Sprints, Definition of Done, pull requests revisados, burndown y Jira al día. Cuida ambas cosas.
+Lo que se califica no es solo el código, sino **la evidencia de Scrum**: backlog, Sprints, Definition of Done, pull requests, avances visibles en staging, burndown y Jira al día. Cuida ambas cosas.
 
 ## 2. Idioma y estilo
 
@@ -98,11 +98,13 @@ npm run deploy                         # producción: hosting + reglas + índice
 
 ## 6. Flujo de trabajo y Definition of Done
 
-**Flujo:** una rama por historia (`HU-xx-nombre`, por ejemplo `HU-06-busqueda-filtros`), commits con el prefijo `HU-xx:`, y pull request hacia `main` con la plantilla. **Otro** desarrollador debe aprobar en GitHub (*Review changes → Approve*). Al final se publica en staging y se pega el enlace en el pull request.
+**Flujo:** una rama por historia (`HU-xx-nombre`, por ejemplo `HU-06-busqueda-filtros`), commits con el prefijo `HU-xx:`, y pull request hacia `main` con la plantilla. Al final se publica en staging y se pega el enlace en el pull request. La aprobación de otro desarrollador en GitHub ya no se exige: la Ing. Neira indicó el 30 de octubre de 2026 que basta con que los avances se vean en staging.
+
+El canal de staging usa la misma base de datos y las mismas reglas que producción: una historia que agrega reglas no funciona en staging hasta que se publican (`npx firebase deploy --only firestore:rules`).
 
 **Definition of Done** (8 puntos):
 1. Cumple sus criterios de aceptación y el PO la validó.
-2. Pull request revisado por otro desarrollador en GitHub.
+2. Integrada a `main` por pull request. (La revisión de otro desarrollador ya no se exige desde el 30 de octubre de 2026.)
 3. Funciona en 4 navegadores y en celular.
 4. Sin errores en la consola.
 5. Las reglas de Firestore que toca están probadas en el emulador.
