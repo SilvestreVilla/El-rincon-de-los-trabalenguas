@@ -178,12 +178,17 @@ select:focus-visible { outline: none; border-color: var(--acento); box-shadow: v
 .campo { display: flex; flex-direction: column; gap: 6px; }
 .campo-fila { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 label { font-weight: 600; font-size: 0.9rem; }
-input[type="email"], input[type="password"] {
+input[type="email"], input[type="password"], input[type="text"], textarea {
   font: inherit; font-size: 1rem; min-height: 46px; padding: 10px 14px;
   border: 1px solid var(--linea-fuerte); border-radius: 10px; background: var(--superficie); color: var(--tinta);
 }
-input:focus-visible { outline: none; border-color: var(--acento); box-shadow: var(--sombra-foco); }
-input[aria-invalid="true"] { border-color: var(--error); }
+textarea { resize: vertical; line-height: 1.5; }
+input:focus-visible, textarea:focus-visible { outline: none; border-color: var(--acento); box-shadow: var(--sombra-foco); }
+input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--error); }
+/* HU-12: formulario de propuesta, más ancho y con área y dificultad lado a lado. */
+.contenedor-form-ancho { max-width: 640px; }
+.campos-par { display: grid; gap: 18px; }
+@media (min-width: 560px) { .campos-par { grid-template-columns: 1fr 1fr; } }
 .ayuda { font-size: 0.82rem; color: var(--gris); }
 .error-campo { font-size: 0.82rem; color: var(--error); }
 .casillas { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--linea); padding-top: 16px; }

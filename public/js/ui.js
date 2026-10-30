@@ -78,6 +78,7 @@ function pintarNavUsuario(usuario) {
     location.href = 'index.html';
   });
   navSesion.replaceChildren(
+    el('a', { href: 'proponer.html', class: 'nav-texto' }, 'Proponer'),
     el('a', { href: 'favoritos.html', class: 'nav-texto' }, 'Mis favoritos'),
     el('a', { href: 'perfil.html', class: 'chip-usuario', 'aria-label': `Mi perfil: ${usuario.email}` },
       el('span', { class: 'avatar', 'aria-hidden': 'true' }, inicial),

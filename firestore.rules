@@ -2,8 +2,8 @@ rules_version = '2';
 
 // Reglas de seguridad de El Rincón de los Trabalenguas.
 // Sprint 1: usuarios (HU-01, HU-02) y lectura del catálogo aprobado (HU-04, HU-05).
-// Las escrituras de trabalenguas desde el cliente llegan en el Sprint 3 (HU-12, HU-13);
-// mientras tanto, la semilla se carga con scripts/seed.js (Admin SDK, que no pasa por estas reglas).
+// Sprint 2: los usuarios proponen trabalenguas en `envios` (HU-12). El cliente sigue sin escribir
+// en `trabalenguas`: la semilla se carga con scripts/seed.js (Admin SDK) y la publicación llega con HU-13.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -14,6 +14,19 @@ service cloud.firestore {
 
     function esDueno(uid) {
       return autenticado() && request.auth.uid == uid;
+    }
+
+    function rutaUsuario(uid) {
+      return /databases/$(database)/documents/usuarios/$(uid);
+    }
+
+    function rutaEnvio(envioId) {
+      return /databases/$(database)/documents/envios/$(envioId);
+    }
+
+    // HU-12: máximo de envíos pendientes por usuario.
+    function maxPendientes() {
+      return 5;
     }
 
     // ---------- usuarios/{uid} ----------
@@ -32,8 +45,17 @@ service cloud.firestore {
         && request.resource.data.creado == request.time;
 
       // Nadie cambia su propio rol ni su correo desde el cliente.
+      // HU-12: lo único que el dueño puede cambiar es su contador de envíos pendientes, y solo
+      // subiéndolo de 1 en 1 (hasta 5) en la misma escritura que crea el envío `ultimoEnvio`.
       allow update: if esDueno(uid)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([]);
+        && (request.resource.data.diff(resource.data).affectedKeys().hasOnly([])
+          || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['enviosPendientes', 'ultimoEnvio'])
+            && request.resource.data.enviosPendientes == resource.data.get('enviosPendientes', 0) + 1
+            && request.resource.data.enviosPendientes <= maxPendientes()
+            && request.resource.data.ultimoEnvio is string
+            && !exists(rutaEnvio(request.resource.data.ultimoEnvio))
+            && existsAfter(rutaEnvio(request.resource.data.ultimoEnvio))
+            && getAfter(rutaEnvio(request.resource.data.ultimoEnvio)).data.autorId == uid));
 
       // La eliminación de cuenta llega en el Sprint 4 (HU-18).
       allow delete: if false;
@@ -67,6 +89,34 @@ service cloud.firestore {
         && (!('ultimaPractica' in request.resource.data) || request.resource.data.ultimaPractica is timestamp);
 
       allow delete: if false;
+    }
+
+    // ---------- envios/{envioId} ----------
+    // HU-12: propuestas de trabalenguas. Se crean como «pendiente» y no aparecen en el catálogo.
+    // Cada envío sube en 1 el contador `enviosPendientes` del autor en la misma escritura (batch);
+    // así las reglas imponen el máximo de 5 sin tener que contar documentos.
+    match /envios/{envioId} {
+      // HU-15: cada autor lee solo sus envíos (las consultas deben filtrar por autorId).
+      allow read: if autenticado() && resource.data.autorId == request.auth.uid;
+
+      allow create: if autenticado()
+        && request.resource.data.keys().hasOnly(['autorId', 'titulo', 'texto', 'concepto', 'definicion', 'area', 'dificultad', 'estado', 'creado'])
+        && request.resource.data.keys().hasAll(['autorId', 'titulo', 'texto', 'concepto', 'definicion', 'area', 'dificultad', 'estado', 'creado'])
+        && request.resource.data.autorId == request.auth.uid
+        && request.resource.data.estado == 'pendiente'
+        && request.resource.data.creado == request.time
+        && request.resource.data.titulo is string && request.resource.data.titulo.size() >= 1 && request.resource.data.titulo.size() <= 80
+        && request.resource.data.texto is string && request.resource.data.texto.size() >= 20 && request.resource.data.texto.size() <= 500
+        && request.resource.data.concepto is string && request.resource.data.concepto.size() >= 1 && request.resource.data.concepto.size() <= 60
+        && request.resource.data.definicion is string && request.resource.data.definicion.size() >= 1 && request.resource.data.definicion.size() <= 200
+        && request.resource.data.area in ['Scrum', 'Planeación', 'Riesgos', 'Calidad', 'Liderazgo']
+        && request.resource.data.dificultad in ['Fácil', 'Medio', 'Difícil']
+        // El contador del autor sube en 1 en la misma escritura y apunta a este envío.
+        && getAfter(rutaUsuario(request.auth.uid)).data.get('enviosPendientes', 0) == get(rutaUsuario(request.auth.uid)).data.get('enviosPendientes', 0) + 1
+        && getAfter(rutaUsuario(request.auth.uid)).data.get('ultimoEnvio', '') == envioId;
+
+      // Aprobar o rechazar (y bajar el contador) llega con HU-13.
+      allow update, delete: if false;
     }
 
     // Cualquier otra colección queda cerrada.

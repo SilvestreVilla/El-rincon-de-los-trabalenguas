@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Proponer un trabalenguas · El Rincón de los Trabalenguas</title>
+  <meta name="description" content="Propón un trabalenguas sobre un concepto de administración de proyectos.">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <script type="module" src="js/proponer.js"></script>
+</head>
+<body>
+  <header class="encabezado">
+    <nav aria-label="Principal">
+      <a href="index.html" class="marca"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#3346D3"/><path d="M9 13h16M9 18h11M9 23h7" stroke="#FFE27A" stroke-width="2.6" stroke-linecap="round"/></svg><span>El Rincón de los Trabalenguas</span></a>
+      <div class="nav-enlaces">
+        <a href="index.html" class="nav-texto">Catálogo</a>
+        <div id="nav-sesion" class="nav-enlaces">
+          <a href="login.html" class="boton boton-secundario">Iniciar sesión</a>
+          <a href="registro.html" class="boton">Crear cuenta</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="contenedor-form contenedor-form-ancho">
+      <header>
+        <h1>Propón un trabalenguas</h1>
+        <p class="bajada">Comparte un concepto de administración de proyectos con otros equipos. El editor de la editorial revisa cada propuesta antes de publicarla.</p>
+      </header>
+
+      <p id="pendientes" class="contador" aria-live="polite"></p>
+
+      <form id="form-proponer" class="tarjeta-form" novalidate>
+        <div id="aviso" class="aviso oculto" role="alert"></div>
+
+        <div class="campo">
+          <label for="titulo">Título</label>
+          <input id="titulo" name="titulo" type="text" maxlength="80" required aria-describedby="error-titulo">
+          <span id="error-titulo" class="error-campo oculto"></span>
+        </div>
+
+        <div class="campo">
+          <div class="campo-fila">
+            <label for="texto">Trabalenguas</label>
+            <span id="cuenta-texto" class="ayuda">0 / 500</span>
+          </div>
+          <textarea id="texto" name="texto" rows="4" maxlength="500" required aria-describedby="ayuda-texto error-texto"></textarea>
+          <span id="ayuda-texto" class="ayuda">Entre 20 y 500 caracteres.</span>
+          <span id="error-texto" class="error-campo oculto"></span>
+        </div>
+
+        <div class="campo">
+          <label for="concepto">Concepto de AP</label>
+          <input id="concepto" name="concepto" type="text" maxlength="60" placeholder="Por ejemplo: Registro de riesgos" required aria-describedby="error-concepto">
+          <span id="error-concepto" class="error-campo oculto"></span>
+        </div>
+
+        <div class="campo">
+          <div class="campo-fila">
+            <label for="definicion">Definición del concepto</label>
+            <span id="cuenta-definicion" class="ayuda">0 / 200</span>
+          </div>
+          <textarea id="definicion" name="definicion" rows="3" maxlength="200" required aria-describedby="ayuda-definicion error-definicion"></textarea>
+          <span id="ayuda-definicion" class="ayuda">Máximo 200 caracteres.</span>
+          <span id="error-definicion" class="error-campo oculto"></span>
+        </div>
+
+        <div class="campos-par">
+          <div class="campo">
+            <label for="area">Área de AP</label>
+            <select id="area" name="area" required aria-describedby="error-area">
+              <option value="">Elige un área</option>
+              <option>Scrum</option>
+              <option>Planeación</option>
+              <option>Riesgos</option>
+              <option>Calidad</option>
+              <option>Liderazgo</option>
+            </select>
+            <span id="error-area" class="error-campo oculto"></span>
+          </div>
+
+          <div class="campo">
+            <label for="dificultad">Dificultad</label>
+            <select id="dificultad" name="dificultad" required aria-describedby="error-dificultad">
+              <option value="">Elige la dificultad</option>
+              <option>Fácil</option>
+              <option>Medio</option>
+              <option>Difícil</option>
+            </select>
+            <span id="error-dificultad" class="error-campo oculto"></span>
+          </div>
+        </div>
+
+        <button type="submit" id="enviar" class="boton boton-bloque">Enviar propuesta</button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="pie">
+    <div>
+      <span>El Rincón de los Trabalenguas · v0.1</span>
+      <a href="privacidad.html">Aviso de privacidad</a>
+    </div>
+  </footer>
+</body>
+</html>
