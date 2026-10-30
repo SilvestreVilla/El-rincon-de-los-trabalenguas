@@ -48,7 +48,7 @@ service cloud.firestore {
     }
 
     // ---------- progreso/{uid}_{trabalenguasId} ----------
-    // HU-07 (favoritos) y, más adelante, HU-08 y HU-09 (dominado y temporizador).
+    // HU-07 (favoritos), HU-08 (dominado) y HU-09 (temporizador).
     // Cada usuario lee y escribe únicamente su propio progreso (RNF-03).
     match /progreso/{docId} {
       allow get: if autenticado() && docId.matches(request.auth.uid + '_.*');
@@ -59,6 +59,8 @@ service cloud.firestore {
         && request.resource.data.usuarioId == request.auth.uid
         && request.resource.data.keys().hasOnly(['usuarioId', 'trabalenguasId', 'esFavorito', 'dominado', 'mejorTiempoSeg', 'practicas', 'ultimaPractica'])
         && (!('esFavorito' in request.resource.data) || request.resource.data.esFavorito is bool)
+        // HU-08: dominado es un booleano.
+        && (!('dominado' in request.resource.data) || request.resource.data.dominado is bool)
         // HU-09: mejor tiempo (segundos, mayor a 0), número de prácticas y fecha de la última práctica.
         && (!('mejorTiempoSeg' in request.resource.data) || (request.resource.data.mejorTiempoSeg is number && request.resource.data.mejorTiempoSeg > 0))
         && (!('practicas' in request.resource.data) || request.resource.data.practicas is int)

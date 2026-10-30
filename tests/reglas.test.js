@@ -178,3 +178,24 @@ describe('progreso: temporizador (HU-09)', () => {
     await assertFails(setDoc(doc(beto(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', mejorTiempoSeg: 5 }));
   });
 });
+
+describe('progreso: dominado (HU-08)', () => {
+  test('un usuario marca y desmarca un trabalenguas como dominado', async () => {
+    await assertSucceeds(setDoc(doc(ana(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', dominado: true }, { merge: true }));
+    await assertSucceeds(setDoc(doc(ana(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', dominado: false }, { merge: true }));
+  });
+
+  test('un usuario cuenta sus dominados filtrando por su usuarioId', async () => {
+    const q = query(collection(ana(), 'progreso'), where('usuarioId', '==', 'ana'), where('dominado', '==', true));
+    await assertSucceeds(getDocs(q));
+  });
+
+  test('dominado debe ser un booleano', async () => {
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', dominado: 'si' }));
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', dominado: 1 }));
+  });
+
+  test('nadie marca dominados en el progreso de otra persona', async () => {
+    await assertFails(setDoc(doc(beto(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', dominado: true }));
+  });
+});
