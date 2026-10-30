@@ -35,13 +35,14 @@ public/                  sitio que se publica en Hosting
   registro.html, login.html, recuperar.html, perfil.html (HU-01 a HU-03)
   rompehielos.html       Rompehielos del Daily (HU-11)
   proponer.html          proponer un trabalenguas (HU-12)
+  envios.html            «Mis envíos» con estado y motivo de rechazo (HU-15)
   privacidad.html        borrador de aviso de privacidad (HU-18 lo termina)
   css/estilos.css        guía de estilos (variables en :root)
   js/firebase-config.js  configuración del proyecto real (no es secreta)
   js/firebase.js         inicializa Firebase y conecta los emuladores en local
   js/ui.js               el(), etiquetas de área y dificultad, navegación según la sesión, usuarioActual()
   js/catalogo.js, detalle.js, favoritos.js, mis-favoritos.js, temporizador.js, dominado.js, compartir.js,
-     rompehielos.js, dia.js, proponer.js, registro.js, login.js, recuperar.js, perfil.js
+     rompehielos.js, dia.js, proponer.js, mis-envios.js, registro.js, login.js, recuperar.js, perfil.js
 data/trabalenguas.json   semilla: 30 trabalenguas, 6 por área
 scripts/seed.js          carga la semilla (Admin SDK, idempotente)
 firestore.rules          reglas de seguridad
@@ -55,7 +56,7 @@ tests/reglas.test.js     pruebas de reglas (node:test + @firebase/rules-unit-tes
 - `trabalenguas/{id}`: `titulo`, `texto` (20 a 500 caracteres), `concepto`, `definicion` (máx. 200), `area` (Scrum, Planeación, Riesgos, Calidad, Liderazgo), `dificultad` (Fácil, Medio, Difícil), `autorNombre`, `estado` (aprobado, pendiente, rechazado), `creado`. Solo se leen los aprobados. El cliente no escribe aquí todavía.
 - `progreso/{uid}_{trabalenguasId}`: `usuarioId`, `trabalenguasId`, `esFavorito`, `dominado`, `mejorTiempoSeg`, `practicas`, `ultimaPractica`. Cada usuario lee y escribe solo lo suyo; no se borra.
 
-- `envios/{id}` (HU-12): `autorId`, `titulo` (máx. 80), `texto` (20 a 500), `concepto` (máx. 60), `definicion` (máx. 200), `area`, `dificultad`, `estado` («pendiente» al crear), `creado`. Solo el autor lo lee, con consultas filtradas por `autorId`. El cliente no lo cambia ni lo borra; aprobar o rechazar llega con HU-13.
+- `envios/{id}` (HU-12): `autorId`, `titulo` (máx. 80), `texto` (20 a 500), `concepto` (máx. 60), `definicion` (máx. 200), `area`, `dificultad`, `estado` («pendiente» al crear), `creado`, y `motivo` cuando el editor lo rechaza (lo escribe HU-13; HU-15 lo muestra). Solo el autor lo lee, con consultas filtradas por `autorId`. El cliente no lo cambia ni lo borra; aprobar o rechazar llega con HU-13.
 
 Cualquier colección nueva (por ejemplo, `partidas`) necesita: regla nueva en `firestore.rules`, sus pruebas en `tests/reglas.test.js` y publicar las reglas.
 

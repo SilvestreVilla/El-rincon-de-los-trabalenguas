@@ -4,7 +4,7 @@
 // las reglas exigen que ambos cambios vayan juntos y que el contador no pase de 5.
 import { collection, doc, getDoc, increment, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { db } from './firebase.js';
-import { aviso, errorCampo, usuarioActual } from './ui.js';
+import { aviso, el, errorCampo, usuarioActual } from './ui.js';
 
 const MAX_PENDIENTES = 5;
 const AREAS = ['Scrum', 'Planeación', 'Riesgos', 'Calidad', 'Liderazgo'];
@@ -95,7 +95,8 @@ form.addEventListener('submit', async (e) => {
     pendientes += 1;
     form.reset();
     for (const id of ['texto', 'definicion']) $(id).dispatchEvent(new Event('input'));
-    aviso($('aviso'), 'ok', '¡Gracias! Tu propuesta quedó pendiente de revisión. Aparecerá en el catálogo cuando el editor la apruebe.');
+    aviso($('aviso'), 'ok', '¡Gracias! Tu propuesta quedó pendiente de revisión. Aparecerá en el catálogo cuando el editor la apruebe. ',
+      el('a', { href: 'envios.html' }, 'Ver mis envíos'));
   } catch (err) {
     console.error('No se pudo enviar la propuesta', err);
     aviso($('aviso'), 'error', err.code === 'permission-denied'
