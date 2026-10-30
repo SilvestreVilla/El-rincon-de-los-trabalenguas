@@ -8,7 +8,7 @@
     "emuladores": "firebase emulators:start --project demo-rincon-trabalenguas --import=./.emulador --export-on-exit",
     "seed:emulador": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 node scripts/seed.js",
     "seed": "node scripts/seed.js",
-    "test:reglas": "firebase emulators:exec --only firestore --project demo-rincon-trabalenguas \"node --test tests/\"",
+    "test:reglas": "firebase emulators:exec --only firestore --project demo-rincon-trabalenguas \"node --test\"",
     "deploy:staging": "firebase hosting:channel:deploy staging --expires 30d",
     "deploy": "firebase deploy --only hosting,firestore:rules,firestore:indexes"
   },

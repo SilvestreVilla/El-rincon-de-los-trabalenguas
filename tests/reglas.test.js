@@ -8,7 +8,7 @@ import {
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import {
-  collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, deleteDoc, where,
+  collection, doc, getDoc, getDocs, increment, query, serverTimestamp, setDoc, updateDoc, deleteDoc, where, writeBatch,
 } from 'firebase/firestore';
 
 let env;
@@ -197,5 +197,105 @@ describe('progreso: dominado (HU-08)', () => {
 
   test('nadie marca dominados en el progreso de otra persona', async () => {
     await assertFails(setDoc(doc(beto(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', dominado: true }));
+  });
+});
+
+describe('envíos (HU-12)', () => {
+  const envioValido = (autorId = 'ana') => ({
+    autorId,
+    titulo: 'Riesgos rápidos',
+    texto: 'Raúl registra riesgos raros en el registro de riesgos.',
+    concepto: 'Registro de riesgos',
+    definicion: 'Documento donde se anotan los riesgos identificados, su análisis y la respuesta planeada.',
+    area: 'Riesgos',
+    dificultad: 'Medio',
+    estado: 'pendiente',
+    creado: serverTimestamp(),
+  });
+
+  /** Crea el envío y sube el contador del autor en la misma escritura, como lo hace proponer.js. */
+  function proponer(db, datos = envioValido(), uid = 'ana') {
+    const lote = writeBatch(db);
+    const ref = doc(collection(db, 'envios'));
+    lote.set(ref, datos);
+    lote.update(doc(db, 'usuarios', uid), { enviosPendientes: increment(1), ultimoEnvio: ref.id });
+    return lote.commit();
+  }
+
+  const fijarPendientes = (n) => env.withSecurityRulesDisabled((ctx) =>
+    updateDoc(doc(ctx.firestore(), 'usuarios/ana'), { enviosPendientes: n }));
+
+  test('un usuario propone un trabalenguas y su contador sube a 1', async () => {
+    await assertSucceeds(proponer(ana()));
+    const usuario = await getDoc(doc(ana(), 'usuarios/ana'));
+    if (usuario.data().enviosPendientes !== 1) throw new Error('el contador debía quedar en 1');
+  });
+
+  test('con 4 pendientes se acepta el quinto', async () => {
+    await fijarPendientes(4);
+    await assertSucceeds(proponer(ana()));
+  });
+
+  test('con 5 pendientes se rechaza el sexto', async () => {
+    await fijarPendientes(5);
+    await assertFails(proponer(ana()));
+  });
+
+  test('no se puede crear un envío sin subir el contador', async () => {
+    await assertFails(setDoc(doc(ana(), 'envios/e1'), envioValido()));
+  });
+
+  test('no se puede tocar el contador sin crear un envío', async () => {
+    await assertFails(updateDoc(doc(ana(), 'usuarios/ana'), { enviosPendientes: 1, ultimoEnvio: 'e1' }));
+    await assertFails(updateDoc(doc(ana(), 'usuarios/ana'), { enviosPendientes: 0 }));
+  });
+
+  test('el contador sube de 1 en 1', async () => {
+    const db = ana();
+    const lote = writeBatch(db);
+    const ref = doc(collection(db, 'envios'));
+    lote.set(ref, envioValido());
+    lote.update(doc(db, 'usuarios/ana'), { enviosPendientes: 3, ultimoEnvio: ref.id });
+    await assertFails(lote.commit());
+  });
+
+  test('el envío se guarda como pendiente y a nombre de quien lo envía', async () => {
+    await assertFails(proponer(ana(), { ...envioValido(), estado: 'aprobado' }));
+    await assertFails(proponer(ana(), envioValido('beto')));
+  });
+
+  test('se validan los límites del texto, la definición, el área y la dificultad', async () => {
+    await assertFails(proponer(ana(), { ...envioValido(), texto: 'Muy corto' }));
+    await assertFails(proponer(ana(), { ...envioValido(), texto: 'a'.repeat(501) }));
+    await assertFails(proponer(ana(), { ...envioValido(), definicion: 'a'.repeat(201) }));
+    await assertFails(proponer(ana(), { ...envioValido(), titulo: '' }));
+    await assertFails(proponer(ana(), { ...envioValido(), area: 'Finanzas' }));
+    await assertFails(proponer(ana(), { ...envioValido(), dificultad: 'Imposible' }));
+    await assertFails(proponer(ana(), { ...envioValido(), puntos: 10 }));
+  });
+
+  test('un visitante no puede proponer', async () => {
+    await assertFails(setDoc(doc(visitante(), 'envios/e1'), envioValido()));
+  });
+
+  test('cada autor lee solo sus envíos', async () => {
+    await env.withSecurityRulesDisabled((ctx) => setDoc(doc(ctx.firestore(), 'envios/e1'), { ...envioValido(), creado: new Date() }));
+    await assertSucceeds(getDoc(doc(ana(), 'envios/e1')));
+    await assertSucceeds(getDocs(query(collection(ana(), 'envios'), where('autorId', '==', 'ana'))));
+    await assertFails(getDoc(doc(beto(), 'envios/e1')));
+    await assertFails(getDocs(collection(ana(), 'envios')));
+    await assertFails(getDoc(doc(visitante(), 'envios/e1')));
+  });
+
+  test('un envío no se puede cambiar ni borrar desde el cliente', async () => {
+    await env.withSecurityRulesDisabled((ctx) => setDoc(doc(ctx.firestore(), 'envios/e1'), { ...envioValido(), creado: new Date() }));
+    await assertFails(updateDoc(doc(ana(), 'envios/e1'), { estado: 'aprobado' }));
+    await assertFails(deleteDoc(doc(ana(), 'envios/e1')));
+  });
+
+  test('los envíos no aparecen en el catálogo', async () => {
+    await assertSucceeds(proponer(ana()));
+    const catalogo = await getDocs(query(collection(visitante(), 'trabalenguas'), where('estado', '==', 'aprobado')));
+    if (catalogo.size !== 1) throw new Error('el catálogo solo debía tener el trabalenguas aprobado de la semilla');
   });
 });
