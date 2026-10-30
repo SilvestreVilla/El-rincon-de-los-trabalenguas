@@ -35,6 +35,15 @@
         <p id="detalle-texto" class="detalle-texto"></p>
         <p class="detalle-ayuda">Léelo tres veces en voz alta, cada vez un poco más rápido.</p>
         <p class="detalle-autor">Autor: <strong id="detalle-autor"></strong></p>
+        <section class="temporizador" aria-labelledby="temporizador-titulo">
+          <h2 id="temporizador-titulo">Temporizador</h2>
+          <p id="tiempo" class="tiempo" role="timer" aria-live="off">0.0 s</p>
+          <div class="acciones-detalle">
+            <button type="button" id="btn-temporizador" class="boton">Iniciar</button>
+          </div>
+          <p id="mejor-tiempo" class="detalle-ayuda">Aún no tienes un mejor tiempo.</p>
+          <p id="temporizador-estado" class="detalle-ayuda" role="status"></p>
+        </section>
         <div class="acciones-detalle">
           <button type="button" id="btn-favorito" class="boton boton-secundario" aria-pressed="false">☆ Guardar en favoritos</button>
           <p id="favorito-error" class="detalle-ayuda oculto" role="alert"></p>
