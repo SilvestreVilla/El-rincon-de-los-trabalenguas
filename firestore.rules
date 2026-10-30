@@ -47,6 +47,22 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // ---------- progreso/{uid}_{trabalenguasId} ----------
+    // HU-07 (favoritos) y, más adelante, HU-08 y HU-09 (dominado y temporizador).
+    // Cada usuario lee y escribe únicamente su propio progreso (RNF-03).
+    match /progreso/{docId} {
+      allow get: if autenticado() && docId.matches(request.auth.uid + '_.*');
+      allow list: if autenticado() && resource.data.usuarioId == request.auth.uid;
+
+      allow create, update: if autenticado()
+        && docId.matches(request.auth.uid + '_.*')
+        && request.resource.data.usuarioId == request.auth.uid
+        && request.resource.data.keys().hasOnly(['usuarioId', 'trabalenguasId', 'esFavorito', 'dominado', 'mejorTiempoSeg', 'practicas', 'ultimaPractica'])
+        && (!('esFavorito' in request.resource.data) || request.resource.data.esFavorito is bool);
+
+      allow delete: if false;
+    }
+
     // Cualquier otra colección queda cerrada.
     match /{document=**} {
       allow read, write: if false;

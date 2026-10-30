@@ -2,6 +2,7 @@
 import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { db } from './firebase.js';
 import { etiquetaArea, etiquetaDificultad } from './ui.js';
+import { iniciarFavorito } from './favoritos.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -41,6 +42,8 @@ async function cargar() {
 
   $('detalle-cargando').classList.add('oculto');
   $('detalle').classList.remove('oculto');
+
+  iniciarFavorito(id); // HU-07
 }
 
 cargar();

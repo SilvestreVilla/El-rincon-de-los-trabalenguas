@@ -187,3 +187,7 @@ input[aria-invalid="true"] { border-color: var(--error); }
 /* ---------- Pie ---------- */
 .pie { border-top: 1px solid var(--linea); background: var(--superficie); }
 .pie div { max-width: 1200px; margin: 0 auto; padding: 16px 20px; display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; font-size: 0.82rem; color: var(--gris); }
+
+/* ---------- Favoritos (HU-07) ---------- */
+.acciones-detalle { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.boton[aria-pressed="true"] { background: var(--acento); color: #fff; border-color: var(--acento); }

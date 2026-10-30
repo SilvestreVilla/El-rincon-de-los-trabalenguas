@@ -120,3 +120,38 @@ describe('otras colecciones', () => {
     await assertFails(getDoc(doc(ana(), 'cualquiera/x')));
   });
 });
+
+describe('progreso: favoritos (HU-07)', () => {
+  test('un usuario marca un favorito en su propio documento', async () => {
+    await assertSucceeds(setDoc(doc(ana(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', esFavorito: true }, { merge: true }));
+  });
+
+  test('un usuario lee su propio progreso, aunque el documento no exista', async () => {
+    await assertSucceeds(getDoc(doc(ana(), 'progreso/ana_t1')));
+  });
+
+  test('un usuario consulta sus favoritos filtrando por su usuarioId', async () => {
+    const q = query(collection(ana(), 'progreso'), where('usuarioId', '==', 'ana'), where('esFavorito', '==', true));
+    await assertSucceeds(getDocs(q));
+  });
+
+  test('no se puede consultar el progreso de todos', async () => {
+    await assertFails(getDocs(collection(ana(), 'progreso')));
+    await assertFails(getDocs(query(collection(ana(), 'progreso'), where('usuarioId', '==', 'beto'))));
+  });
+
+  test('un visitante no lee ni escribe progreso', async () => {
+    await assertFails(getDoc(doc(visitante(), 'progreso/ana_t1')));
+    await assertFails(setDoc(doc(visitante(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', esFavorito: true }));
+  });
+
+  test('nadie escribe en el progreso de otra persona', async () => {
+    await assertFails(setDoc(doc(beto(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', esFavorito: true }));
+    await assertFails(setDoc(doc(beto(), 'progreso/beto_t1'), { usuarioId: 'ana', trabalenguasId: 't1', esFavorito: true }));
+  });
+
+  test('no se aceptan campos extra ni un favorito que no sea booleano', async () => {
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', esFavorito: true, puntos: 99 }));
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { usuarioId: 'ana', trabalenguasId: 't1', esFavorito: 'si' }));
+  });
+});
