@@ -100,8 +100,8 @@ service cloud.firestore {
       allow read: if autenticado() && resource.data.autorId == request.auth.uid;
 
       allow create: if autenticado()
-        && request.resource.data.keys().hasOnly(['autorId', 'titulo', 'texto', 'concepto', 'definicion', 'area', 'dificultad', 'estado', 'creado'])
-        && request.resource.data.keys().hasAll(['autorId', 'titulo', 'texto', 'concepto', 'definicion', 'area', 'dificultad', 'estado', 'creado'])
+        && request.resource.data.keys().hasOnly(['autorId', 'autorNombre', 'titulo', 'texto', 'concepto', 'definicion', 'area', 'dificultad', 'estado', 'creado'])
+        && request.resource.data.keys().hasAll(['autorId', 'autorNombre', 'titulo', 'texto', 'concepto', 'definicion', 'area', 'dificultad', 'estado', 'creado'])
         && request.resource.data.autorId == request.auth.uid
         && request.resource.data.estado == 'pendiente'
         && request.resource.data.creado == request.time
@@ -109,6 +109,8 @@ service cloud.firestore {
         && request.resource.data.texto is string && request.resource.data.texto.size() >= 20 && request.resource.data.texto.size() <= 500
         && request.resource.data.concepto is string && request.resource.data.concepto.size() >= 1 && request.resource.data.concepto.size() <= 60
         && request.resource.data.definicion is string && request.resource.data.definicion.size() >= 1 && request.resource.data.definicion.size() <= 200
+        // Nombre público con el que aparecerá el autor al publicarse (decidido el 30 de octubre).
+        && request.resource.data.autorNombre is string && request.resource.data.autorNombre.size() >= 1 && request.resource.data.autorNombre.size() <= 40
         && request.resource.data.area in ['Scrum', 'Planeación', 'Riesgos', 'Calidad', 'Liderazgo']
         && request.resource.data.dificultad in ['Fácil', 'Medio', 'Difícil']
         // El contador del autor sube en 1 en la misma escritura y apunta a este envío.

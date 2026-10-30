@@ -93,6 +93,13 @@
           </div>
         </div>
 
+        <div class="campo">
+          <label for="autorNombre">Nombre con el que quieres aparecer</label>
+          <input id="autorNombre" name="autorNombre" type="text" maxlength="40" autocomplete="name" required aria-describedby="ayuda-autorNombre error-autorNombre">
+          <span id="ayuda-autorNombre" class="ayuda">Se mostrará como autor si el editor aprueba tu propuesta. Máximo 40 caracteres.</span>
+          <span id="error-autorNombre" class="error-campo oculto"></span>
+        </div>
+
         <button type="submit" id="enviar" class="boton boton-bloque">Enviar propuesta</button>
       </form>
     </div>

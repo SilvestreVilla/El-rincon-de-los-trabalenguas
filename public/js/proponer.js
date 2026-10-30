@@ -13,7 +13,7 @@ const DIFICULTADES = ['Fácil', 'Medio', 'Difícil'];
 const $ = (id) => document.getElementById(id);
 const form = $('form-proponer');
 const enviar = $('enviar');
-const campos = ['titulo', 'texto', 'concepto', 'definicion', 'area', 'dificultad'];
+const campos = ['titulo', 'texto', 'concepto', 'definicion', 'area', 'dificultad', 'autorNombre'];
 
 let usuario = null;
 let pendientes = 0;
@@ -51,6 +51,8 @@ function validar(v) {
       : v.definicion.length > 200 ? 'La definición debe tener 200 caracteres o menos.' : '',
     area: AREAS.includes(v.area) ? '' : 'Elige un área.',
     dificultad: DIFICULTADES.includes(v.dificultad) ? '' : 'Elige la dificultad.',
+    autorNombre: !v.autorNombre ? 'Escribe el nombre con el que quieres aparecer.'
+      : v.autorNombre.length > 40 ? 'El nombre debe tener 40 caracteres o menos.' : '',
   };
   for (const id of campos) errorCampo($(id), $(`error-${id}`), errores[id]);
   const primero = campos.find((id) => errores[id]);
@@ -94,6 +96,7 @@ form.addEventListener('submit', async (e) => {
 
     pendientes += 1;
     form.reset();
+    $('autorNombre').value = v.autorNombre; // normalmente es el mismo en la siguiente propuesta
     for (const id of ['texto', 'definicion']) $(id).dispatchEvent(new Event('input'));
     aviso($('aviso'), 'ok', '¡Gracias! Tu propuesta quedó pendiente de revisión. Aparecerá en el catálogo cuando el editor la apruebe. ',
       el('a', { href: 'envios.html' }, 'Ver mis envíos'));

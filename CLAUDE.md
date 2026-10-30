@@ -56,7 +56,7 @@ tests/reglas.test.js     pruebas de reglas (node:test + @firebase/rules-unit-tes
 - `trabalenguas/{id}`: `titulo`, `texto` (20 a 500 caracteres), `concepto`, `definicion` (máx. 200), `area` (Scrum, Planeación, Riesgos, Calidad, Liderazgo), `dificultad` (Fácil, Medio, Difícil), `autorNombre`, `estado` (aprobado, pendiente, rechazado), `creado`. Solo se leen los aprobados. El cliente no escribe aquí todavía.
 - `progreso/{uid}_{trabalenguasId}`: `usuarioId`, `trabalenguasId`, `esFavorito`, `dominado`, `mejorTiempoSeg`, `practicas`, `ultimaPractica`. Cada usuario lee y escribe solo lo suyo; no se borra.
 
-- `envios/{id}` (HU-12): `autorId`, `titulo` (máx. 80), `texto` (20 a 500), `concepto` (máx. 60), `definicion` (máx. 200), `area`, `dificultad`, `estado` («pendiente» al crear), `creado`, y `motivo` cuando el editor lo rechaza (lo escribe HU-13; HU-15 lo muestra). Solo el autor lo lee, con consultas filtradas por `autorId`. El cliente no lo cambia ni lo borra; aprobar o rechazar llega con HU-13.
+- `envios/{id}` (HU-12): `autorId`, `autorNombre` (nombre público, 1 a 40), `titulo` (máx. 80), `texto` (20 a 500), `concepto` (máx. 60), `definicion` (máx. 200), `area`, `dificultad`, `estado` («pendiente» al crear), `creado`, y `motivo` cuando el editor lo rechaza (lo escribe HU-13; HU-15 lo muestra). Solo el autor lo lee, con consultas filtradas por `autorId`. El cliente no lo cambia ni lo borra; aprobar o rechazar llega con HU-13.
 
 Cualquier colección nueva (por ejemplo, `partidas`) necesita: regla nueva en `firestore.rules`, sus pruebas en `tests/reglas.test.js` y publicar las reglas.
 
