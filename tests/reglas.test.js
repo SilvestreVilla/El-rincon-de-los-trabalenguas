@@ -203,6 +203,7 @@ describe('progreso: dominado (HU-08)', () => {
 describe('envíos (HU-12)', () => {
   const envioValido = (autorId = 'ana') => ({
     autorId,
+    autorNombre: 'Ana López',
     titulo: 'Riesgos rápidos',
     texto: 'Raúl registra riesgos raros en el registro de riesgos.',
     concepto: 'Registro de riesgos',
@@ -264,11 +265,15 @@ describe('envíos (HU-12)', () => {
     await assertFails(proponer(ana(), envioValido('beto')));
   });
 
-  test('se validan los límites del texto, la definición, el área y la dificultad', async () => {
+  test('se validan los límites del texto, la definición, el nombre del autor, el área y la dificultad', async () => {
     await assertFails(proponer(ana(), { ...envioValido(), texto: 'Muy corto' }));
     await assertFails(proponer(ana(), { ...envioValido(), texto: 'a'.repeat(501) }));
     await assertFails(proponer(ana(), { ...envioValido(), definicion: 'a'.repeat(201) }));
     await assertFails(proponer(ana(), { ...envioValido(), titulo: '' }));
+    await assertFails(proponer(ana(), { ...envioValido(), autorNombre: '' }));
+    await assertFails(proponer(ana(), { ...envioValido(), autorNombre: 'a'.repeat(41) }));
+    const { autorNombre, ...sinNombre } = envioValido();
+    await assertFails(proponer(ana(), sinNombre));
     await assertFails(proponer(ana(), { ...envioValido(), area: 'Finanzas' }));
     await assertFails(proponer(ana(), { ...envioValido(), dificultad: 'Imposible' }));
     await assertFails(proponer(ana(), { ...envioValido(), puntos: 10 }));
