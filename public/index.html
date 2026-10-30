@@ -33,6 +33,33 @@
     </div>
 
     <section aria-label="Catálogo de trabalenguas">
+      <form id="filtros" class="filtros" role="search" aria-label="Buscar y filtrar trabalenguas" novalidate>
+  <div class="campo campo-busqueda">
+    <label for="busqueda">Buscar por texto o concepto</label>
+    <input type="search" id="busqueda" placeholder="Ej. sprint, riesgo, backlog" autocomplete="off">
+  </div>
+  <div class="campo">
+    <label for="filtro-area">Área</label>
+    <select id="filtro-area">
+      <option value="">Todas</option>
+      <option value="Scrum">Scrum</option>
+      <option value="Planeación">Planeación</option>
+      <option value="Riesgos">Riesgos</option>
+      <option value="Calidad">Calidad</option>
+      <option value="Liderazgo">Liderazgo</option>
+    </select>
+  </div>
+  <div class="campo">
+    <label for="filtro-dificultad">Dificultad</label>
+    <select id="filtro-dificultad">
+      <option value="">Todas</option>
+      <option value="Fácil">Fácil</option>
+      <option value="Medio">Medio</option>
+      <option value="Difícil">Difícil</option>
+    </select>
+  </div>
+  <button type="button" id="limpiar" class="boton boton-secundario">Limpiar filtros</button>
+</form>
       <ul id="catalogo" class="rejilla" aria-busy="true">
         <li class="esqueleto" aria-hidden="true"><span></span><span></span><span></span><span></span></li>
         <li class="esqueleto" aria-hidden="true"><span></span><span></span><span></span><span></span></li>
@@ -47,6 +74,11 @@
         <h2>Todavía no hay trabalenguas aprobados</h2>
         <p>Cuando el editor de contenido de la editorial apruebe el primero, aparecerá aquí.</p>
       </div>
+      <div id="sin-resultados" class="vacio oculto">
+  <h2>No encontramos trabalenguas con esos filtros</h2>
+  <p>Prueba con otra palabra o quita algún filtro.</p>
+  <button type="button" id="limpiar-vacio" class="boton">Limpiar filtros</button>
+</div>
       <div id="catalogo-error" class="vacio oculto" role="alert">
         <h2>No pudimos cargar el catálogo</h2>
         <p>Revisa tu conexión a internet y vuelve a intentarlo.</p>
