@@ -72,14 +72,17 @@ service cloud.firestore {
     // ---------- progreso/{uid}_{trabalenguasId} ----------
     // HU-07 (favoritos), HU-08 (dominado), HU-09 (temporizador) y HU-21 (etapas de la ruta).
     // Cada usuario lee y escribe únicamente su propio progreso (RNF-03).
-    // HU-21: etapas es un mapa con solo lee, ordena, completa y dilo, todos booleanos.
+    // HU-21: etapas es un mapa de booleanos con las etapas de la ruta: ordena, completa y memorama.
+    // `lee` y `dilo` (karaoke y voz, retirados el 2 de noviembre) se siguen aceptando para no romper
+    // los documentos que ya los tienen; la app ya no los escribe.
     function etapasValidas(datos) {
       return !('etapas' in datos) || (datos.etapas is map
-        && datos.etapas.keys().hasOnly(['lee', 'ordena', 'completa', 'dilo'])
+        && datos.etapas.keys().hasOnly(['ordena', 'completa', 'memorama', 'lee', 'dilo'])
         && (!('lee' in datos.etapas) || datos.etapas.lee is bool)
         && (!('ordena' in datos.etapas) || datos.etapas.ordena is bool)
         && (!('completa' in datos.etapas) || datos.etapas.completa is bool)
-        && (!('dilo' in datos.etapas) || datos.etapas.dilo is bool));
+        && (!('dilo' in datos.etapas) || datos.etapas.dilo is bool)
+        && (!('memorama' in datos.etapas) || datos.etapas.memorama is bool));
     }
 
     match /progreso/{docId} {

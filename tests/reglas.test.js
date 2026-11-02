@@ -339,8 +339,15 @@ describe('progreso: etapas de la ruta (HU-21)', () => {
 
   test('al completar la última etapa se guarda dominado en la misma escritura', async () => {
     await assertSucceeds(setDoc(doc(ana(), 'progreso/ana_t1'), {
-      ...base, etapas: { lee: true, ordena: true, completa: true, dilo: true }, dominado: true,
+      ...base, etapas: { ordena: true, completa: true, memorama: true }, dominado: true,
     }, { merge: true }));
+  });
+
+  test('un documento con las etapas retiradas (lee, dilo) se puede seguir actualizando', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'progreso/ana_t1'), { ...base, etapas: { lee: true, dilo: true } });
+    });
+    await assertSucceeds(setDoc(doc(ana(), 'progreso/ana_t1'), { ...base, etapas: { memorama: true } }, { merge: true }));
   });
 
   test('no se aceptan etapas desconocidas', async () => {
@@ -348,7 +355,7 @@ describe('progreso: etapas de la ruta (HU-21)', () => {
   });
 
   test('cada etapa debe ser booleana y etapas debe ser un mapa', async () => {
-    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { ...base, etapas: { dilo: 'si' } }));
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { ...base, etapas: { memorama: 'si' } }));
     await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { ...base, etapas: ['lee'] }));
     await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { ...base, etapas: true }));
   });
