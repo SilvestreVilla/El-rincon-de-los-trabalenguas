@@ -6,6 +6,7 @@
   <title>Trabalenguas · El Rincón de los Trabalenguas</title>
   <meta name="description" content="Trabalenguas con su concepto de administración de proyectos y su definición.">
   <link rel="stylesheet" href="css/estilos.css">
+  <link rel="stylesheet" href="css/juegos.css">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <script type="module" src="js/detalle.js"></script>
   <script type="module" src="js/compartir.js"></script>
@@ -51,11 +52,14 @@
           <p id="compartir-estado" class="detalle-ayuda" role="status"></p>
           <p id="favorito-error" class="detalle-ayuda oculto" role="alert"></p>
         </div>
-        <div class="acciones-detalle">
-          <button type="button" id="btn-dominado" class="boton boton-secundario" aria-pressed="false">Marcar como dominado</button>
-          <p id="contador-dominados" class="detalle-ayuda" role="status" aria-live="polite"></p>
-          <p id="dominado-error" class="detalle-ayuda oculto" role="alert"></p>
-        </div>
+        <section id="ruta" class="ruta" aria-labelledby="ruta-titulo">
+          <div class="ruta-cabecera">
+            <h2 id="ruta-titulo">Ruta de aprendizaje</h2>
+            <p id="ruta-resumen" class="ruta-resumen" role="status" aria-live="polite"></p>
+          </div>
+          <ol id="ruta-etapas" class="ruta-etapas"></ol>
+          <p id="ruta-nota" class="detalle-ayuda"></p>
+        </section>
       </article>
       <aside class="concepto" aria-labelledby="concepto-nombre">
         <span class="concepto-etiqueta">Concepto de AP</span>

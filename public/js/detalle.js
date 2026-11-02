@@ -4,7 +4,7 @@ import { db } from './firebase.js';
 import { etiquetaArea, etiquetaDificultad } from './ui.js';
 import { iniciarFavorito } from './favoritos.js';
 import { iniciarTemporizador } from './temporizador.js';
-import { iniciarDominado } from './dominado.js';
+import { iniciarRuta } from './ruta.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -47,7 +47,7 @@ async function cargar() {
 
   iniciarFavorito(id); // HU-07
   iniciarTemporizador(id); // HU-09
-  iniciarDominado(id); // HU-08
+  iniciarRuta(id); // HU-21 (reemplaza el botón manual de HU-08)
 }
 
 cargar();
