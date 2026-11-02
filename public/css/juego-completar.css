@@ -20,3 +20,4 @@
 .completar-resumen { margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
 .completar-resumen .bien span:first-child { color: var(--ok); }
 .completar-resumen .mal span:first-child { color: var(--error); }
+.completar-pregunta, .completar-final { display: flex; flex-direction: column; gap: 16px; }
