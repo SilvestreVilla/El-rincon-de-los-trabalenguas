@@ -49,11 +49,11 @@ Velocidad real del Sprint 1: 27 pts (factor de dedicación 27 ÷ 15 = 180 %). [C
 |---|---|---|---|
 | 1 · Base | 23 al 30 oct | HU-01 a HU-07, HU-09 | 27 real (14 planeados) |
 | 2 · Práctica | 31 oct al 6 nov | HU-08, HU-10, HU-11, HU-12, HU-15 | 14 |
-| 3 · Comunidad y juego | 7 al 13 nov | HU-13, HU-14 | 13 |
-| 4 · Liberación | 14 al 20 nov | HU-16, HU-17, HU-18 + liberación (Lighthouse, navegadores, manual) | 11 |
-| Reserva | — | HU-19 (Could, 5) si sobra capacidad · HU-20 (Won't, 13) para la v2.0 | — |
+| 3 · Aprender jugando | 7 al 13 nov | HU-21 Ruta (3), HU-22 Arma (3), HU-23 Karaoke (3), HU-14 Completar (5) | 14 |
+| 4 · Dominar y liberar | 14 al 20 nov | HU-24 Dilo en voz alta (8), HU-13 Editor (3), HU-18 Privacidad (3) + liberación (Lighthouse, navegadores, manual) | 14 |
+| Fuera de la v1.0 | — | HU-16 (5), HU-17 (3), HU-19 (5), HU-25 (3) · HU-20 (Won't, 13) para la v2.0 | — |
 
-Total: 65 pts planeados (HU-01 a HU-18). HU-12 y HU-15 se adelantan porque HU-13 y HU-14 dependen de que existan envíos.
+**Replaneación del 2 de noviembre («Aprender jugando»).** En la Review, la Dra. Neira observó que todavía no se veía que el usuario aprenda los trabalenguas y sugirió más juegos. El PO agregó HU-21 a HU-25 (SCRUM-25 a SCRUM-29, etiqueta `Review-Dra`) y reordenó el backlog: cada trabalenguas tiene una ruta de 4 etapas (Lee, Ordena, Completa, Dilo) y queda dominado al completarlas. HU-14 genera sola la palabra oculta y los distractores, así que baja de 8 a 5 pts y deja de depender de HU-13, que baja de 5 a 3 y pasa al Sprint 4. HU-16, HU-17, HU-19 y HU-25 quedan fuera de la v1.0 (etiqueta `Fuera-v1.0`). Las estimaciones nuevas son propuestas: el equipo las confirma con planning poker en el refinamiento.
 
 **Pendiente en Jira:**
 1. Cerrar el Sprint 1 después de la Review e iniciar el Sprint 2 con su objetivo y fechas.
@@ -69,6 +69,7 @@ El plan Spark no incluye Cloud Functions: todo se hace desde el cliente y se pro
 1. ~~**HU-12, máximo 5 envíos pendientes.**~~ Decidido el 30 de octubre: colección `envios` + contador `usuarios/{uid}.enviosPendientes`, que sube en el mismo batch que crea el envío. **HU-13 debe bajar el contador** al aprobar o rechazar, y al rechazar debe guardar el motivo en el campo `motivo` del envío (HU-15 ya lo muestra); mientras no exista, un usuario con 5 pendientes no puede enviar más.
 2. ~~**HU-11, «mismo día natural».**~~ Resuelto: usa `America/Monterrey`.
 3. ~~**HU-13, nombre del autor.**~~ Decidido el 30 de octubre: el formulario de HU-12 pedirá «Nombre con el que quieres aparecer» (obligatorio, máx. 40 caracteres) y se guardará en el envío como `autorNombre`; el moderador lo ve antes de aprobar. Falta agregar el campo al formulario y a las reglas de `envios`. Los envíos hechos antes no tienen nombre: el moderador tendrá que capturarlo o publicarlos como «Comunidad». [SUPUESTO]
-4. **HU-14, datos del juego.** Si la palabra oculta y los distractores se guardan en `trabalenguas/{id}`, que lee cualquiera, la respuesta queda visible en el cliente. Decidir si se acepta o se guardan aparte. [COMPLETAR]
+4. ~~**HU-14, datos del juego.**~~ Decidido el 2 de noviembre: no se guardan. La palabra oculta y los distractores se generan en el cliente a partir de los trabalenguas aprobados.
+7. **HU-21, campo `etapas`.** Hay que ampliar la regla de `progreso` para aceptar `etapas` (mapa con solo `lee`, `ordena`, `completa`, `dilo`, booleanos) y agregar sus pruebas. [SUPUESTO: un usuario podría marcar etapas desde la consola del navegador; se acepta porque el progreso es personal y no compite con nadie]
 5. **HU-18, eliminar cuenta.** Hoy las reglas prohíben borrar `usuarios`, `progreso` y `envios`, y el cliente no puede escribir en `trabalenguas` para dejar las aportaciones como «Anónimo». Hay que cambiar las reglas y el modelo de datos («el progreso no se borra»). [COMPLETAR diseño]
-6. **HU-16, la racha.** Falta la regla exacta del plan v3.0 (sección 3.2). [COMPLETAR]
+6. **HU-16, la racha.** Falta la regla exacta del plan v3.0 (sección 3.2). [COMPLETAR] (HU-16 quedó fuera de la v1.0.)
