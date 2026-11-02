@@ -1,21 +1,23 @@
 // HU-21 · Ruta de aprendizaje y dominado por logro
-// Cada trabalenguas tiene 4 etapas: 1 Lee (HU-23) → 2 Ordena (HU-22) → 3 Completa (HU-14) → 4 Dilo (HU-24).
+// Cada trabalenguas tiene 3 etapas: 1 Ordena (HU-22) → 2 Completa (HU-14) → 3 Memorama (HU-25).
+// (Replaneación del 2 de noviembre: se retiraron Lee/karaoke, HU-23, y Dilo en voz alta, HU-24.)
 // El avance vive en progreso/{uid}_{trabalenguasId}, campo `etapas` (mapa de booleanos).
-// Al completar las 4, la app pone `dominado: true`: ya no se marca a mano (antes HU-08).
+// Al completar todas, la app pone `dominado: true`: ya no se marca a mano (antes HU-08).
+// Las claves viejas `lee` y `dilo` pueden existir en documentos anteriores; ya no cuentan.
 import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { db } from './firebase.js';
 import { el, etiquetaArea, etiquetaDificultad, usuarioActual } from './ui.js';
 
 export const ETAPAS = [
-  { clave: 'lee', numero: 1, nombre: 'Lee', juego: 'Karaoke de velocidad', pagina: 'juego-karaoke.html', ayuda: 'Léelo en voz alta al ritmo de las palabras iluminadas.' },
-  { clave: 'ordena', numero: 2, nombre: 'Ordena', juego: 'Arma el trabalenguas', pagina: 'juego-armar.html', ayuda: 'Acomoda en orden las palabras revueltas.' },
-  { clave: 'completa', numero: 3, nombre: 'Completa', juego: 'Completar la frase', pagina: 'juego-completar.html', ayuda: 'Encuentra la palabra que falta.' },
-  { clave: 'dilo', numero: 4, nombre: 'Dilo', juego: 'Dilo en voz alta', pagina: 'juego-dilo.html', ayuda: 'Dilo de memoria, sin ver el texto.' },
+  { clave: 'ordena', numero: 1, nombre: 'Ordena', juego: 'Arma el trabalenguas', pagina: 'juego-armar.html', ayuda: 'Acomoda en orden las palabras revueltas.' },
+  { clave: 'completa', numero: 2, nombre: 'Completa', juego: 'Preguntas del trabalenguas', pagina: 'juego-completar.html', ayuda: 'Responde sobre la frase, su concepto y ejemplos de la vida diaria.' },
+  { clave: 'memorama', numero: 3, nombre: 'Relaciona', juego: 'Memorama de conceptos', pagina: 'juego-memorama.html', ayuda: 'Empareja los conceptos del área con su definición.' },
 ];
 
 export const etapaPorClave = (clave) => ETAPAS.find((e) => e.clave === clave);
 export const enlaceEtapa = (etapa, trabalenguasId) => `${etapa.pagina}?id=${encodeURIComponent(trabalenguasId)}`;
 export const enlaceDetalle = (trabalenguasId) => `trabalenguas.html?id=${encodeURIComponent(trabalenguasId)}`;
+export const TOTAL_ETAPAS = ETAPAS.length;
 export const cuantasCompletas = (etapas) => ETAPAS.filter((e) => etapas?.[e.clave] === true).length;
 export const siguientePendiente = (etapas) => ETAPAS.find((e) => etapas?.[e.clave] !== true) ?? null;
 
@@ -30,7 +32,7 @@ export async function leerAvance(usuario, trabalenguasId) {
 }
 
 /**
- * Marca una etapa como completada. Si con ella quedan las 4, marca el trabalenguas como dominado.
+ * Marca una etapa como completada. Si con ella quedan todas, marca el trabalenguas como dominado.
  * Devuelve { guardado, etapas, dominado, recienDominado } o { guardado: false, motivo }.
  */
 export async function completarEtapa(trabalenguasId, clave) {
@@ -40,7 +42,7 @@ export async function completarEtapa(trabalenguasId, clave) {
 
   const previo = await leerAvance(usuario, trabalenguasId);
   const etapas = { ...previo.etapas, [clave]: true };
-  const completas = cuantasCompletas(etapas) === ETAPAS.length;
+  const completas = cuantasCompletas(etapas) === TOTAL_ETAPAS;
   // merge: solo se escribe la etapa (y dominado); favoritos, tiempos y prácticas no se tocan.
   const datos = { usuarioId: usuario.uid, trabalenguasId, etapas: { [clave]: true } };
   if (completas) datos.dominado = true;
@@ -68,7 +70,7 @@ export async function cargarTrabalenguas(id) {
 
 // ---------- Detalle del trabalenguas ----------
 
-/** Pinta la ruta de 4 etapas en la página de detalle (#ruta). */
+/** Pinta la ruta de etapas en la página de detalle (#ruta). */
 export async function iniciarRuta(trabalenguasId) {
   const lista = document.getElementById('ruta-etapas');
   const resumen = document.getElementById('ruta-resumen');
@@ -104,9 +106,9 @@ export async function iniciarRuta(trabalenguasId) {
 
   const completas = cuantasCompletas(avance.etapas);
   if (avance.dominado) {
-    resumen.replaceChildren(el('span', { class: 'insignia-dominado' }, '✓ Dominado'), ` ${completas} de 4 etapas`);
+    resumen.replaceChildren(el('span', { class: 'insignia-dominado' }, '✓ Dominado'), ` ${completas} de ${TOTAL_ETAPAS} etapas`);
   } else {
-    resumen.textContent = `${completas} de 4 etapas`;
+    resumen.textContent = `${completas} de ${TOTAL_ETAPAS} etapas`;
   }
 
   if (!usuario) {
@@ -116,7 +118,7 @@ export async function iniciarRuta(trabalenguasId) {
     nota.textContent = 'No pudimos cargar tu contador de dominados.';
   } else {
     const cuenta = `Llevas ${total} ${total === 1 ? 'trabalenguas dominado' : 'trabalenguas dominados'}.`;
-    nota.textContent = avance.dominado ? `¡Ya lo dominas! ${cuenta}` : `Completa las 4 etapas para dominarlo. ${cuenta}`;
+    nota.textContent = avance.dominado ? `¡Ya lo dominas! ${cuenta}` : `Completa las ${TOTAL_ETAPAS} etapas para dominarlo. ${cuenta}`;
   }
 }
 
@@ -147,7 +149,7 @@ export async function iniciarPaginaJuego(clave, alCargar) {
 
   document.title = `${etapa.juego}: ${t.titulo} · El Rincón de los Trabalenguas`;
   $('volver-detalle').href = enlaceDetalle(id);
-  $('juego-etapa').textContent = `Etapa ${etapa.numero} de 4 · ${etapa.nombre}`;
+  $('juego-etapa').textContent = `Etapa ${etapa.numero} de ${TOTAL_ETAPAS} · ${etapa.nombre}`;
   $('juego-titulo').textContent = t.titulo;
   $('juego-meta').replaceChildren(etiquetaArea(t.area), etiquetaDificultad(t.dificultad),
     el('span', { class: 'juego-concepto' }, 'Concepto: ', el('strong', {}, t.concepto)));
@@ -157,7 +159,7 @@ export async function iniciarPaginaJuego(clave, alCargar) {
 }
 
 /**
- * Guarda la etapa y pinta el resultado en `contenedor`: mensaje de logro, avance «n de 4»
+ * Guarda la etapa y pinta el resultado en `contenedor`: mensaje de logro, avance «n de 3»
  * y enlace a la siguiente etapa pendiente (o al detalle).
  */
 export async function registrarEtapa(contenedor, trabalenguasId, clave) {
@@ -193,11 +195,11 @@ export async function registrarEtapa(contenedor, trabalenguasId, clave) {
     contenedor.classList.add('resultado-logro');
     contenedor.replaceChildren(
       el('p', { class: 'resultado-titulo' }, '🏆 ¡Dominaste este trabalenguas!'),
-      el('p', {}, 'Completaste las 4 etapas: lo leíste, lo ordenaste, lo completaste y lo dijiste de memoria.'),
+      el('p', {}, 'Completaste las 3 etapas: lo ordenaste, respondiste sus preguntas y relacionaste sus conceptos.'),
       acciones);
   } else {
     contenedor.replaceChildren(
-      el('p', { class: 'resultado-titulo' }, `¡Etapa ${etapa.numero} superada! Llevas ${cuantasCompletas(r.etapas)} de 4.`),
+      el('p', { class: 'resultado-titulo' }, `¡Etapa ${etapa.numero} superada! Llevas ${cuantasCompletas(r.etapas)} de ${TOTAL_ETAPAS}.`),
       acciones);
   }
   return r;
