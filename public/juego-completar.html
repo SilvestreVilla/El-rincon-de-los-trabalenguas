@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Completar la frase · El Rincón de los Trabalenguas</title>
-  <meta name="description" content="Encuentra la palabra que falta en el trabalenguas y aprende la definición de su concepto.">
+  <title>Preguntas del trabalenguas · El Rincón de los Trabalenguas</title>
+  <meta name="description" content="Responde preguntas sobre el trabalenguas, su concepto de administración de proyectos y ejemplos de la vida diaria.">
   <link rel="stylesheet" href="css/estilos.css">
   <link rel="stylesheet" href="css/juegos.css">
   <link rel="stylesheet" href="css/juego-completar.css">
@@ -32,13 +32,14 @@
 
     <section id="juego" class="juego oculto" aria-labelledby="juego-titulo">
       <p id="juego-etapa" class="juego-etapa">Etapa 2 de 3 · Completa</p>
-      <h1 id="juego-titulo">Completar la frase</h1>
+      <h1 id="juego-titulo"></h1>
       <div id="juego-meta" class="juego-meta"></div>
-      <p class="juego-instrucciones">Elige la palabra que falta. Al responder verás el trabalenguas completo y la definición de su concepto. Cada partida tiene 5 preguntas.</p>
+      <p class="juego-instrucciones">5 preguntas sobre este trabalenguas: la palabra que falta, el concepto que trabaja, qué significa y cómo se ve en la vida diaria. Con 4 aciertos superas la etapa.</p>
       <p id="completar-sesion" class="detalle-ayuda"></p>
       <div id="completar-pregunta" class="completar-pregunta">
-        <p id="completar-frase" class="completar-frase" aria-live="polite"></p>
-        <div id="completar-opciones" class="completar-opciones" role="group" aria-label="Opciones"></div>
+        <h2 id="completar-enunciado" class="completar-enunciado" tabindex="-1"></h2>
+        <p id="completar-cita" class="completar-cita"></p>
+        <div id="completar-opciones" class="completar-opciones" role="group" aria-labelledby="completar-enunciado"></div>
         <div id="completar-retro" class="completar-retro oculto" role="status" aria-live="polite">
           <p id="completar-veredicto" class="completar-veredicto"></p>
           <span class="concepto-etiqueta">Concepto de AP</span>
@@ -50,12 +51,12 @@
         </div>
       </div>
       <div id="completar-final" class="completar-final oculto">
-        <p class="detalle-ayuda">Tu puntaje</p>
+        <p class="detalle-ayuda">Tu resultado</p>
         <p id="completar-puntaje" class="completar-puntaje"></p>
         <p id="completar-mensaje"></p>
         <ul id="completar-resumen" class="completar-resumen"></ul>
         <div class="acciones-detalle">
-          <button type="button" id="completar-otra" class="boton">Jugar otra partida</button>
+          <button type="button" id="completar-otra" class="boton boton-secundario">Intentar otra vez</button>
         </div>
       </div>
       <div id="resultado" class="resultado-etapa oculto" role="status" aria-live="polite"></div>
