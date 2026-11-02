@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Completar la frase · El Rincón de los Trabalenguas</title>
+  <meta name="description" content="Encuentra la palabra que falta en el trabalenguas y aprende la definición de su concepto.">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="stylesheet" href="css/juegos.css">
+  <link rel="stylesheet" href="css/juego-completar.css">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <script type="module" src="js/juego-completar.js"></script>
+</head>
+<body>
+  <header class="encabezado">
+    <nav aria-label="Principal">
+      <a href="index.html" class="marca"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#3346D3"/><path d="M9 13h16M9 18h11M9 23h7" stroke="#FFE27A" stroke-width="2.6" stroke-linecap="round"/></svg><span>El Rincón de los Trabalenguas</span></a>
+      <div class="nav-enlaces">
+        <a href="index.html" class="nav-texto">Catálogo</a>
+        <div id="nav-sesion" class="nav-enlaces">
+          <a href="login.html" class="boton boton-secundario">Iniciar sesión</a>
+          <a href="registro.html" class="boton">Crear cuenta</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <a id="volver-detalle" href="index.html" class="volver"><span aria-hidden="true">←</span> Volver a la ruta</a>
+
+    <p id="juego-cargando" class="detalle-ayuda" aria-live="polite">Cargando el juego…</p>
+
+    <section id="juego" class="juego oculto" aria-labelledby="juego-titulo">
+      <p id="juego-etapa" class="juego-etapa">Etapa 3 de 4 · Completa</p>
+      <h1 id="juego-titulo">Completar la frase</h1>
+      <div id="juego-meta" class="juego-meta"></div>
+      <p class="juego-instrucciones">Elige la palabra que falta. Al responder verás el trabalenguas completo y la definición de su concepto. Cada partida tiene 5 preguntas.</p>
+      <p id="completar-sesion" class="detalle-ayuda"></p>
+      <div id="completar-pregunta" class="completar-pregunta">
+        <p id="completar-frase" class="completar-frase" aria-live="polite"></p>
+        <div id="completar-opciones" class="completar-opciones" role="group" aria-label="Opciones"></div>
+        <div id="completar-retro" class="completar-retro oculto" role="status" aria-live="polite">
+          <p id="completar-veredicto" class="completar-veredicto"></p>
+          <span class="concepto-etiqueta">Concepto de AP</span>
+          <strong id="completar-concepto"></strong>
+          <p id="completar-definicion"></p>
+        </div>
+        <div class="acciones-detalle">
+          <button type="button" id="completar-siguiente" class="boton oculto">Siguiente pregunta</button>
+        </div>
+      </div>
+      <div id="completar-final" class="completar-final oculto">
+        <p class="detalle-ayuda">Tu puntaje</p>
+        <p id="completar-puntaje" class="completar-puntaje"></p>
+        <p id="completar-mensaje"></p>
+        <ul id="completar-resumen" class="completar-resumen"></ul>
+        <div class="acciones-detalle">
+          <button type="button" id="completar-otra" class="boton">Jugar otra partida</button>
+        </div>
+      </div>
+      <div id="resultado" class="resultado-etapa oculto" role="status" aria-live="polite"></div>
+    </section>
+
+    <div id="no-encontrado" class="vacio oculto">
+      <h1>Trabalenguas no encontrado</h1>
+      <p>El enlace no existe o el trabalenguas todavía no está aprobado por la editorial.</p>
+      <a href="index.html" class="boton">Ir al catálogo</a>
+    </div>
+  </main>
+
+  <footer class="pie">
+    <div>
+      <span>El Rincón de los Trabalenguas · v0.1</span>
+      <a href="privacidad.html">Aviso de privacidad</a>
+    </div>
+  </footer>
+</body>
+</html>

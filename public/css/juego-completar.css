@@ -1,0 +1,23 @@
+/* HU-14 · Completar la frase */
+.completar-contador { font-weight: 700; color: var(--tinta-suave); }
+.completar-frase { font-size: clamp(1.4rem, 3.4vw, 2.1rem); font-weight: 700; line-height: 1.35; }
+.completar-opciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.opcion {
+  font: inherit; font-weight: 700; font-size: 1.1rem; min-height: 52px; padding: 10px 16px; cursor: pointer;
+  border-radius: 12px; border: 1px solid var(--linea-fuerte); background: var(--superficie); color: var(--tinta);
+}
+.opcion:hover:not(:disabled) { border-color: var(--acento); background: #f3f4ff; }
+.opcion:disabled { cursor: default; opacity: 0.6; }
+.opcion.bien { opacity: 1; background: var(--ok-fondo); border-color: var(--ok); color: var(--ok); }
+.opcion.mal { opacity: 1; background: var(--error-fondo); border-color: var(--error); color: var(--error); }
+.completar-retro { border-radius: 12px; padding: 16px; background: var(--tinta); color: #fff; display: flex; flex-direction: column; gap: 6px; }
+.completar-retro .concepto-etiqueta { color: var(--resaltado); }
+.completar-retro p { color: #d9deec; }
+.completar-veredicto { font-weight: 800; font-size: 1.1rem; }
+.completar-veredicto.bien { color: #9be3a1; }
+.completar-veredicto.mal { color: #ffb4a8; }
+.completar-puntaje { font-size: clamp(2.4rem, 7vw, 3.6rem); font-weight: 800; color: var(--acento); }
+.completar-resumen { margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.completar-resumen .bien span:first-child { color: var(--ok); }
+.completar-resumen .mal span:first-child { color: var(--error); }
+.completar-pregunta, .completar-final { display: flex; flex-direction: column; gap: 16px; }
