@@ -89,7 +89,7 @@ function pintar() {
 function voltear(carta, indice) {
   if (bloqueado || terminado || volteadas.includes(carta) || encontradas.has(carta.par)) return;
   volteadas.push(carta);
-  $('memorama-anuncio').textContent = `${carta.tipo === 'concepto' ? 'Concepto' : 'Definición'}: ${carta.texto}`;
+  $('memorama-anuncio').textContent = `${carta.tipo === 'concepto' ? 'Concepto' : 'Definición'}: ${carta.texto.replace(/\.$/, '')}.`;
   if (volteadas.length === 2) {
     intentos += 1;
     const [a, b] = volteadas;
@@ -101,7 +101,7 @@ function voltear(carta, indice) {
       if (encontradas.size === cartas.length / 2) return terminar();
     } else {
       bloqueado = true;
-      $('memorama-anuncio').textContent += '. No son pareja.';
+      $('memorama-anuncio').textContent += ' No son pareja.';
       setTimeout(() => {
         volteadas = [];
         bloqueado = false;
