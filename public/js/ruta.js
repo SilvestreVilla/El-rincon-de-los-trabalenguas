@@ -115,7 +115,8 @@ export async function iniciarRuta(trabalenguasId) {
   } else if (total === null) {
     nota.textContent = 'No pudimos cargar tu contador de dominados.';
   } else {
-    nota.textContent = `Completa las 4 etapas para dominarlo. Llevas ${total} ${total === 1 ? 'trabalenguas dominado' : 'trabalenguas dominados'}.`;
+    const cuenta = `Llevas ${total} ${total === 1 ? 'trabalenguas dominado' : 'trabalenguas dominados'}.`;
+    nota.textContent = avance.dominado ? `¡Ya lo dominas! ${cuenta}` : `Completa las 4 etapas para dominarlo. ${cuenta}`;
   }
 }
 
