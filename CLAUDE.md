@@ -1,7 +1,7 @@
 # CLAUDE.md · El Rincón de los Trabalenguas
 
 > Contexto para Claude Code. Guárdalo en la raíz del repo como `CLAUDE.md`: Claude Code lo lee solo al abrir la carpeta.
-> Actualizado: 2 de noviembre de 2026 (replaneación «Aprender jugando»). Aquí va solo el contexto estable; el estado de cada Sprint está en `ESTADO.md`.
+> Actualizado: 2 de noviembre de 2026 (ruta de aprendizaje de 3 etapas). Aquí va solo el contexto estable; el estado de cada Sprint está en `ESTADO.md`.
 
 ## 1. Qué es este proyecto
 
@@ -30,20 +30,26 @@ Lo que se califica no es solo el código, sino **la evidencia de Scrum**: backlo
 ```
 public/                  sitio que se publica en Hosting
   index.html             catálogo + búsqueda y filtros (HU-04, HU-06)
-  trabalenguas.html      detalle + favorito + temporizador (HU-05, HU-07, HU-09)
+  trabalenguas.html      detalle + favorito + temporizador + ruta de aprendizaje (HU-05, HU-07, HU-09, HU-21)
+  juego-armar.html       etapa 1 · Arma el trabalenguas (HU-22)
+  juego-completar.html   etapa 2 · Preguntas del trabalenguas (HU-14)
+  juego-memorama.html    etapa 3 · Memorama de conceptos (HU-25)
   favoritos.html         «Mis favoritos» (HU-07)
   registro.html, login.html, recuperar.html, perfil.html (HU-01 a HU-03)
   rompehielos.html       Rompehielos del Daily (HU-11)
   proponer.html          proponer un trabalenguas (HU-12)
   envios.html            «Mis envíos» con estado y motivo de rechazo (HU-15)
   privacidad.html        borrador de aviso de privacidad (HU-18 lo termina)
-  css/estilos.css        guía de estilos (variables en :root)
+  css/estilos.css        guía de estilos (variables en :root); juegos.css y juego-*.css para la ruta
   js/firebase-config.js  configuración del proyecto real (no es secreta)
   js/firebase.js         inicializa Firebase y conecta los emuladores en local
   js/ui.js               el(), etiquetas de área y dificultad, navegación según la sesión, usuarioActual()
-  js/catalogo.js, detalle.js, favoritos.js, mis-favoritos.js, temporizador.js, dominado.js, compartir.js,
+  js/catalogo.js, detalle.js, favoritos.js, mis-favoritos.js, temporizador.js, compartir.js,
      rompehielos.js, dia.js, proponer.js, mis-envios.js, registro.js, login.js, recuperar.js, perfil.js
-data/trabalenguas.json   semilla: 30 trabalenguas, 6 por área
+  js/ruta.js             etapas de la ruta, completarEtapa(), esqueleto de las páginas de juego (HU-21)
+  js/texto.js, logica-*.js   lógica de los juegos sin Firebase (se prueba con npm run test:juegos)
+  js/juego-*.js          interfaz de cada juego
+data/trabalenguas.json   semilla: 30 trabalenguas, 6 por área, cada uno con 2 ejemplos cotidianos
 scripts/seed.js          carga la semilla (Admin SDK, idempotente)
 firestore.rules          reglas de seguridad
 tests/reglas.test.js     pruebas de reglas (node:test + @firebase/rules-unit-testing)
@@ -53,8 +59,8 @@ tests/reglas.test.js     pruebas de reglas (node:test + @firebase/rules-unit-tes
 ### Modelo de datos (Firestore)
 
 - `usuarios/{uid}`: `email`, `rol` (siempre «usuario» desde el cliente; «moderador» lo asigna el PO en la consola), `aceptoPrivacidad`, `mayorDeEdad`, `creado`, y desde HU-12 `enviosPendientes` y `ultimoEnvio`. Solo el dueño lo lee. Nadie cambia su rol. El dueño solo puede subir `enviosPendientes` de 1 en 1 (máx. 5) en el mismo batch que crea un envío.
-- `trabalenguas/{id}`: `titulo`, `texto` (20 a 500 caracteres), `concepto`, `definicion` (máx. 200), `area` (Scrum, Planeación, Riesgos, Calidad, Liderazgo), `dificultad` (Fácil, Medio, Difícil), `autorNombre`, `estado` (aprobado, pendiente, rechazado), `creado`. Solo se leen los aprobados. El cliente no escribe aquí todavía.
-- `progreso/{uid}_{trabalenguasId}`: `usuarioId`, `trabalenguasId`, `esFavorito`, `dominado`, `mejorTiempoSeg`, `practicas`, `ultimaPractica`, y desde HU-21 `etapas` (mapa con solo `lee`, `ordena`, `completa`, `dilo`, booleanos). Cada usuario lee y escribe solo lo suyo; no se borra. Desde HU-21, `dominado` lo pone la app al completar las 4 etapas; ya no se marca a mano. [PENDIENTE: agregar `etapas` a la regla y sus pruebas]
+- `trabalenguas/{id}`: `titulo`, `texto` (20 a 500 caracteres), `concepto`, `definicion` (máx. 200), `area` (Scrum, Planeación, Riesgos, Calidad, Liderazgo), `dificultad` (Fácil, Medio, Difícil), `autorNombre`, `estado` (aprobado, pendiente, rechazado), `creado`, y desde HU-14 `ejemplos` (1 a 3 frases de la vida diaria, de 20 a 160 caracteres; la semilla trae 2). Solo se leen los aprobados. El cliente no escribe aquí todavía.
+- `progreso/{uid}_{trabalenguasId}`: `usuarioId`, `trabalenguasId`, `esFavorito`, `dominado`, `mejorTiempoSeg`, `practicas`, `ultimaPractica`, y desde HU-21 `etapas` (mapa de booleanos: `ordena`, `completa`, `memorama`; las reglas también aceptan `lee` y `dilo`, que quedaron de las etapas retiradas). Cada usuario lee y escribe solo lo suyo; no se borra. Desde HU-21, `dominado` lo pone la app al completar las 3 etapas; ya no se marca a mano.
 
 - `envios/{id}` (HU-12): `autorId`, `autorNombre` (nombre público, 1 a 40), `titulo` (máx. 80), `texto` (20 a 500), `concepto` (máx. 60), `definicion` (máx. 200), `area`, `dificultad`, `estado` («pendiente» al crear), `creado`, y `motivo` cuando el editor lo rechaza (lo escribe HU-13; HU-15 lo muestra). Solo el autor lo lee, con consultas filtradas por `autorId`. El cliente no lo cambia ni lo borra; aprobar o rechazar llega con HU-13.
 
@@ -90,7 +96,7 @@ npm run deploy                         # producción: hosting + reglas + índice
   - Desarrolladores: diegoooolpzz06, daevev, osmarsolis22. Dueño: SilvestreVilla.
 - **Jira:** sitio silvestrevilla520.atlassian.net, proyecto «Scrum 1» (clave `SCRUM`), tablero 1.
   - Las historias HU-01 a HU-25 son SCRUM-5 a SCRUM-29 (HU-n = SCRUM-(n+4)). HU-21 a HU-25 se agregaron el 2 de noviembre por la retroalimentación de la Review y llevan la etiqueta `Review-Dra`.
-  - Lo que no entra a la v1.0 lleva la etiqueta `Fuera-v1.0` (HU-16, HU-17, HU-19, HU-25).
+  - Lo que no entra a la v1.0 lleva la etiqueta `Fuera-v1.0` (HU-16, HU-17, HU-19). HU-23 y HU-24 se descartaron el 2 de noviembre (etiqueta `Descartada`).
   - Puntos en el campo «Story point estimate» (`customfield_10016`).
   - Etiquetas por historia: `HU-xx`, `Sprint-n` o `Reserva`, y `MoSCoW-…`.
   - Estados: Por hacer, En curso, En revisión, Finalizado.
@@ -149,13 +155,13 @@ Como editor de contenido de la editorial, necesito validar, aprobar o rechazar e
 - El editor confirma que el concepto y la definición son correctos. Aprobar publica; rechazar exige un motivo.
 - Ya no captura datos de juego: HU-14 los genera sola (replaneación del 2 de noviembre, 5 → 3 pts).
 
-**HU-14 Juego «Completar la frase»** (Must, 5 pts, Sprint 3)
-Como usuario, necesito jugar «Completar la frase» y ver la definición del concepto al responder, para aprender jugando.
-- Cada partida tiene 5 preguntas tomadas de los trabalenguas aprobados.
-- La palabra oculta se elige automáticamente (la más larga del texto, sin artículos ni preposiciones) y los 3 distractores salen de palabras de otros trabalenguas de la misma área. No se guardan datos de juego en Firestore.
-- 4 opciones en orden aleatorio; al responder se indica si fue correcta y se muestra la definición.
-- Al terminar se muestra el puntaje; acertar la pregunta de un trabalenguas completa su etapa «Completa» (HU-21).
-- No depende de HU-13 (replaneación del 2 de noviembre, 8 → 5 pts).
+**HU-14 Preguntas del trabalenguas** (Must, 5 pts, Sprint 3) · etapa 2 de la ruta
+Como usuario, necesito responder preguntas sobre un trabalenguas, su concepto y ejemplos de la vida diaria, para entender el concepto además de memorizar la frase.
+- Cada partida es sobre un trabalenguas y tiene 5 preguntas de 4 opciones: la palabra que falta, el concepto que trabaja, su definición, una situación cotidiana (¿a qué concepto corresponde?) y un ejemplo cotidiano del concepto.
+- Los distractores salen de otros conceptos, de preferencia de la misma área. La palabra oculta es la más larga del texto, sin artículos ni preposiciones.
+- Al responder se indica si fue correcta y se muestra la definición. Con 4 de 5 se completa la etapa «Completa».
+- Sin `ejemplos` (por ejemplo, un envío nuevo) hay 4 preguntas: la situación y el ejemplo se cambian por «¿a qué área pertenece?», y se supera con 3.
+- Los ejemplos cotidianos los valida el editor (DoD 8).
 
 **HU-15 Estado de mis envíos** (Should, 2 pts)
 Como usuario, necesito ver el estado de mis envíos y el motivo si se rechazaron, para saber qué pasó con mis aportaciones.
@@ -181,44 +187,31 @@ Como usuario, necesito consultar el aviso de privacidad y eliminar mi cuenta, pa
 
 ### Ruta de aprendizaje (agregada el 2 de noviembre por la retroalimentación de la Review)
 
-La Dra. Neira observó que todavía no se veía que el usuario *aprenda* los trabalenguas. Cada trabalenguas tiene ahora una ruta de 4 etapas: **1 Lee** (HU-23) → **2 Ordena** (HU-22) → **3 Completa** (HU-14) → **4 Dilo** (HU-24). Al completar las 4, queda dominado.
+La Dra. Neira observó que todavía no se veía que el usuario *aprenda* los trabalenguas. Cada trabalenguas tiene una ruta de 3 etapas: **1 Ordena** (HU-22) → **2 Completa** (HU-14) → **3 Relaciona** (HU-25). Al completar las 3, queda dominado. El mismo día el PO descartó el karaoke (HU-23) y «Dilo en voz alta» (HU-24): no aportaban al objetivo de entender los conceptos.
 
 **HU-21 Ruta de aprendizaje y dominado por logro** (Must, 3 pts, Sprint 3)
-Como usuario registrado, necesito ver una ruta de 4 etapas por trabalenguas, para saber qué me falta para aprendérmelo y ver mi avance.
-- El detalle muestra la ruta y cuáles etapas están completas (ej. «2 de 4 ✔»).
+Como usuario registrado, necesito ver una ruta de etapas por trabalenguas, para saber qué me falta para aprendérmelo y ver mi avance.
+- El detalle muestra la ruta, cuáles etapas están completas («2 de 3») y la siguiente.
 - Cada juego, al superarse, guarda su etapa en `progreso.etapas`.
-- Al completar las 4, `dominado` pasa a `true` automáticamente y se muestra un mensaje de logro.
-- Se retira la casilla manual de «dominado» de HU-08.
-- Un visitante ve la ruta, pero se le invita a iniciar sesión para guardar el avance.
-- Las reglas aceptan `etapas` solo con esas 4 claves booleanas, con pruebas.
+- Al completar todas, `dominado` pasa a `true` automáticamente y se muestra un mensaje de logro.
+- Se retira el botón manual de «dominado» de HU-08.
+- Un visitante puede jugar, pero se le invita a iniciar sesión para guardar el avance.
+- Las reglas aceptan `etapas` solo con claves conocidas y booleanas, con pruebas.
 
-**HU-22 Juego «Arma el trabalenguas»** (Must, 3 pts, Sprint 3)
+**HU-22 Juego «Arma el trabalenguas»** (Must, 3 pts, Sprint 3) · etapa 1
 Como usuario, necesito acomodar en orden las palabras revueltas de un trabalenguas, para memorizar su orden.
 - El texto se divide en fragmentos (palabras o grupos de 2 a 3 según la dificultad) que se muestran revueltos, nunca ya ordenados.
 - Se tocan en orden para formar la frase y se puede deshacer el último.
 - Al terminar se indica si es correcto; si no, se marcan los fragmentos fuera de lugar y se puede reintentar.
-- Al acertar, se completa la etapa «Ordena».
-- Funciona con teclado y en celular. Usa solo `texto`.
+- Al acertar, se completa la etapa «Ordena». Funciona con teclado y en celular.
 
-**HU-23 Karaoke de velocidad** (Must, 3 pts, Sprint 3)
-Como usuario, necesito que las palabras se iluminen a un ritmo creciente mientras leo en voz alta, para practicar ritmo y dicción.
-- Tres velocidades (lenta, normal, rápida) en palabras por minuto, definidas en una constante.
-- Iniciar / Pausa / Reiniciar; la palabra actual se resalta y las anteriores se atenúan.
-- Al terminar en «rápida», el usuario confirma «Lo leí completo» y se completa la etapa «Lee».
-- Respeta `prefers-reduced-motion`. Usa solo `texto`.
+**HU-25 Memorama de conceptos** (Must, 3 pts, Sprint 3) · etapa 3
+Como usuario, necesito emparejar conceptos de AP con sus definiciones, para relacionar el concepto del trabalenguas con los demás de su área.
+- 12 cartas: los 6 conceptos del área del trabalenguas y sus definiciones (si el área tiene menos, se completa con otras). Se puede cambiar de área.
+- Se voltean de dos en dos; las parejas quedan descubiertas. Al terminar, intentos, tiempo y un repaso de cada concepto con su definición.
+- Desde la ruta, al terminar se completa la etapa «memorama» de ese trabalenguas. Funciona con teclado y en celular.
 
-**HU-24 Juego «Dilo en voz alta»** (Must, 8 pts, Sprint 4, riesgo alto)
-Como usuario, necesito decir el trabalenguas de memoria con el micrófono y ver qué palabras dije bien, para comprobar que ya me lo sé.
-- Usa la Web Speech API (`SpeechRecognition`, `es-MX`) si el navegador la soporta (Chrome, Edge).
-- El texto está oculto mientras se habla; al terminar se muestran en verde las palabras reconocidas y en gris las faltantes (sin acentos ni mayúsculas).
-- Se supera con 80 % o más de palabras reconocidas y se completa la etapa «Dilo».
-- Sin soporte o sin permiso de micrófono: autoevaluación («¿Lo dijiste completo? Sí / No»).
-- El permiso se pide solo al pulsar «Empezar»; no se graba ni se guarda audio.
-- Hacer una prueba técnica (spike) al inicio del Sprint 4.
-
-**HU-25 Memorama de conceptos** (Could, 3 pts, fuera de la v1.0)
-Como usuario, necesito emparejar conceptos de AP con sus definiciones, para reforzar los conceptos.
-- 6 pares al azar de los trabalenguas aprobados, filtrables por área; al terminar, intentos y tiempo.
+**HU-23 Karaoke de velocidad** y **HU-24 Dilo en voz alta**: descartadas por el PO el 2 de noviembre. Se programaron y se retiraron del código en el mismo Sprint.
 
 ## 9. Cómo debe trabajar Claude aquí
 
