@@ -28,6 +28,13 @@ for (const t of trabalenguas) {
   if (t.definicion.length > 200) errores.push(`${donde}: la definición pasa de 200 caracteres (${t.definicion.length})`);
   if (!AREAS.includes(t.area)) errores.push(`${donde}: área desconocida «${t.area}»`);
   if (!DIFICULTADES.includes(t.dificultad)) errores.push(`${donde}: dificultad desconocida «${t.dificultad}»`);
+  // HU-14: ejemplos cotidianos del concepto (opcionales; el juego usa dos).
+  if (t.ejemplos !== undefined) {
+    if (!Array.isArray(t.ejemplos) || t.ejemplos.length < 1 || t.ejemplos.length > 3) errores.push(`${donde}: «ejemplos» debe ser una lista de 1 a 3 frases`);
+    else t.ejemplos.forEach((e, i) => {
+      if (typeof e !== 'string' || e.length < 20 || e.length > 160) errores.push(`${donde}: el ejemplo ${i + 1} debe tener de 20 a 160 caracteres`);
+    });
+  }
 }
 if (errores.length) {
   console.error('La semilla tiene errores:\n- ' + errores.join('\n- '));

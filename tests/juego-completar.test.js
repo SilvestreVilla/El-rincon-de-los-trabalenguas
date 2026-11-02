@@ -1,17 +1,16 @@
-// HU-14 · Pruebas de la lógica de «Completar la frase». npm run test:juegos
+// HU-14 · Pruebas de las preguntas del trabalenguas. npm run test:juegos
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
-import { armarPartida, distractores, esCorrecta, fraseConHueco, palabraOculta } from '../public/js/logica-completar.js';
+import { armarPreguntas, esCorrecta, fraseConHueco, minimoParaSuperar, palabraOculta } from '../public/js/logica-completar.js';
+import { normalizar } from '../public/js/texto.js';
 
-const semilla = JSON.parse(readFileSync(new URL('../data/trabalenguas.json', import.meta.url), 'utf8'));
-const todos = (Array.isArray(semilla) ? semilla : semilla.trabalenguas);
+const { trabalenguas: todos } = JSON.parse(readFileSync(new URL('../data/trabalenguas.json', import.meta.url), 'utf8'));
 
-describe('Completar la frase (HU-14)', () => {
+describe('Preguntas del trabalenguas (HU-14)', () => {
   test('la palabra oculta es la más larga que no sea artículo ni preposición', () => {
     const o = palabraOculta('El equipo de desarrollo, con su Sprint.');
     assert.equal(o.palabra, 'desarrollo');
-    assert.equal(o.indice, 3);
   });
 
   test('el hueco conserva la puntuación', () => {
@@ -19,40 +18,42 @@ describe('Completar la frase (HU-14)', () => {
     assert.equal(fraseConHueco(texto, palabraOculta(texto)), 'Planea, _____ y entrega.');
   });
 
-  test('los distractores no repiten la respuesta ni salen del propio trabalenguas', () => {
+  test('cada trabalenguas de la semilla tiene 5 preguntas con 4 opciones distintas y una sola correcta', () => {
     for (const t of todos) {
-      const o = palabraOculta(t.texto);
-      const d = distractores(t, o, todos);
-      assert.equal(d.length, 3, t.id);
-      const propias = t.texto.toLowerCase();
-      for (const p of d) {
-        assert.ok(!esCorrecta({ oculta: o }, p), `${t.id}: ${p}`);
-        assert.ok(!propias.includes(` ${p.toLowerCase()} `), `${t.id}: ${p}`);
+      const preguntas = armarPreguntas(t, todos);
+      assert.deepEqual(preguntas.map((p) => p.tipo), ['palabra', 'concepto', 'definicion', 'situacion', 'ejemplo'], t.id);
+      for (const p of preguntas) {
+        assert.equal(p.opciones.length, 4, `${t.id} ${p.tipo}`);
+        assert.equal(new Set(p.opciones.map(normalizar)).size, 4, `${t.id} ${p.tipo}`);
+        assert.equal(p.opciones.filter((o) => esCorrecta(p, o)).length, 1, `${t.id} ${p.tipo}`);
       }
-      assert.equal(new Set(d.map((p) => p.toLowerCase())).size, 3, t.id);
     }
   });
 
-  test('una partida tiene 5 preguntas distintas con 4 opciones y empieza por el trabalenguas pedido', () => {
-    const id = todos[7].id;
-    const partida = armarPartida(todos, id);
-    assert.equal(partida.length, 5);
-    assert.equal(partida[0].t.id, id);
-    assert.equal(new Set(partida.map((p) => p.t.id)).size, 5);
-    for (const p of partida) {
-      assert.equal(p.opciones.length, 4);
-      assert.equal(p.opciones.filter((o) => esCorrecta(p, o)).length, 1);
-    }
+  test('los distractores son de la misma área cuando alcanza', () => {
+    const t = todos.find((x) => x.id === 'holgura-holgada');
+    const p = armarPreguntas(t, todos).find((x) => x.tipo === 'concepto');
+    const dePlaneacion = new Set(todos.filter((x) => x.area === 'Planeación').map((x) => x.concepto));
+    assert.ok(p.opciones.every((o) => dePlaneacion.has(o)));
   });
 
-  test('todos los trabalenguas de la semilla sirven para el juego', () => {
-    for (const t of todos) assert.ok(palabraOculta(t.texto), t.id);
+  test('la situación y el ejemplo usan ejemplos distintos del mismo concepto', () => {
+    const t = todos[0];
+    const ps = armarPreguntas(t, todos);
+    const situacion = ps.find((x) => x.tipo === 'situacion').cita;
+    const ejemplo = ps.find((x) => x.tipo === 'ejemplo').correcta;
+    assert.notEqual(situacion, ejemplo);
+    assert.ok(t.ejemplos.includes(situacion) && t.ejemplos.includes(ejemplo));
   });
-});
 
-test('las opciones usan la misma mayúscula inicial que la respuesta', () => {
-  for (const p of armarPartida(todos, null, Math.random, todos.length)) {
-    const mayus = (w) => w[0] === w[0].toUpperCase();
-    assert.ok(p.opciones.every((o) => mayus(o) === mayus(p.oculta.palabra)), p.opciones.join(','));
-  }
+  test('sin ejemplos (un envío nuevo) hay 4 preguntas y una es del área', () => {
+    const { ejemplos, ...sinEjemplos } = todos[3];
+    const ps = armarPreguntas({ ...sinEjemplos, id: 'nuevo' }, todos);
+    assert.deepEqual(ps.map((p) => p.tipo), ['palabra', 'concepto', 'definicion', 'area']);
+  });
+
+  test('se supera con 4 de 5 o 3 de 4', () => {
+    assert.equal(minimoParaSuperar(5), 4);
+    assert.equal(minimoParaSuperar(4), 3);
+  });
 });

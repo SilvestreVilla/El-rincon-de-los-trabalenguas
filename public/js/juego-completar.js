@@ -1,17 +1,20 @@
-// HU-14 · Juego «Completar la frase» (etapa 3 de la ruta: Completa)
-// Partida de 5 preguntas. Si se llega desde la ruta (?id=), ese trabalenguas es la primera pregunta.
-// Acertar la pregunta de un trabalenguas completa su etapa «Completa».
+// HU-14 · Preguntas del trabalenguas (etapa 2 de la ruta: Completa)
+// 5 preguntas sobre UN trabalenguas: la palabra que falta, su concepto, su definición, una situación
+// de la vida diaria y un ejemplo cotidiano. Con 4 aciertos o más se completa la etapa.
 import { collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { db } from './firebase.js';
 import { el, etiquetaArea, etiquetaDificultad, usuarioActual } from './ui.js';
-import { completarEtapa, enlaceDetalle, registrarEtapa } from './ruta.js';
-import { armarPartida, esCorrecta } from './logica-completar.js';
+import { enlaceDetalle, enlaceEtapa, etapaPorClave, registrarEtapa } from './ruta.js';
+import { armarPreguntas, esCorrecta, minimoParaSuperar } from './logica-completar.js';
 
 const $ = (id) => document.getElementById(id);
-const idInicial = new URLSearchParams(location.search).get('id');
+const TIPOS = {
+  palabra: 'La frase', concepto: 'El concepto', definicion: 'La definición', situacion: 'En la vida diaria', ejemplo: 'Ejemplo cotidiano', area: 'El área',
+};
 
 let todos = [];
-let partida = [];
+let t = null;
+let preguntas = [];
 let actual = 0;
 let aciertos = [];
 
@@ -21,21 +24,23 @@ async function cargar() {
     todos = instantanea.docs.map((d) => ({ id: d.id, ...d.data() }));
   } catch (e) {
     console.error('No se pudo cargar el catálogo', e);
-    $('juego-cargando').textContent = 'No pudimos cargar el juego. Revisa tu conexión y recarga la página.';
+    $('juego-cargando').textContent = 'No pudimos cargar las preguntas. Revisa tu conexión y recarga la página.';
     return;
   }
-  if (todos.length < 4) {
-    $('juego-cargando').textContent = 'Todavía no hay suficientes trabalenguas aprobados para jugar.';
-    return;
+  const id = new URLSearchParams(location.search).get('id');
+  t = todos.find((x) => x.id === id) ?? null;
+  if (!t) {
+    if (id || todos.length === 0) {
+      $('juego-cargando').classList.add('oculto');
+      $('no-encontrado').classList.remove('oculto');
+      return;
+    }
+    t = todos[Math.floor(Math.random() * todos.length)]; // sin ?id=: uno al azar
   }
-  if (idInicial && todos.some((t) => t.id === idInicial)) {
-    $('volver-detalle').href = enlaceDetalle(idInicial);
-  } else {
-    $('volver-detalle').href = 'index.html';
-    $('volver-detalle').lastChild.textContent = ' Volver al catálogo';
-  }
-  const usuario = await usuarioActual();
-  if (!usuario) {
+  document.title = `Preguntas: ${t.titulo} · El Rincón de los Trabalenguas`;
+  $('volver-detalle').href = enlaceDetalle(t.id);
+  $('juego-titulo').textContent = t.titulo;
+  if (!(await usuarioActual())) {
     $('completar-sesion').replaceChildren('Puedes jugar sin cuenta, pero tu avance no se guarda. ', el('a', { href: 'login.html' }, 'Inicia sesión'), ' para guardarlo.');
   }
   $('juego-cargando').classList.add('oculto');
@@ -44,7 +49,7 @@ async function cargar() {
 }
 
 function nuevaPartida() {
-  partida = armarPartida(todos, idInicial);
+  preguntas = armarPreguntas(t, todos);
   actual = 0;
   aciertos = [];
   $('resultado').classList.add('oculto');
@@ -54,24 +59,29 @@ function nuevaPartida() {
 }
 
 function pintarPregunta() {
-  const p = partida[actual];
-  $('juego-titulo').textContent = 'Completar la frase';
+  const p = preguntas[actual];
   $('juego-meta').replaceChildren(
-    el('span', { class: 'completar-contador' }, `Pregunta ${actual + 1} de ${partida.length}`),
-    etiquetaArea(p.t.area), etiquetaDificultad(p.t.dificultad));
-  $('completar-frase').textContent = `«${p.frase}»`;
+    el('span', { class: 'completar-contador' }, `Pregunta ${actual + 1} de ${preguntas.length}`),
+    el('span', { class: 'completar-tipo' }, TIPOS[p.tipo]),
+    etiquetaArea(t.area), etiquetaDificultad(t.dificultad));
+  $('completar-enunciado').textContent = p.enunciado;
+  $('completar-cita').textContent = p.cita ? `«${p.cita}»` : '';
+  $('completar-cita').classList.toggle('oculto', !p.cita);
+  $('completar-cita').classList.toggle('completar-cita-situacion', p.tipo === 'situacion');
   $('completar-retro').classList.add('oculto');
   $('completar-siguiente').classList.add('oculto');
+  const largas = p.opciones.some((o) => o.length > 40);
+  $('completar-opciones').classList.toggle('largas', largas);
   $('completar-opciones').replaceChildren(...p.opciones.map((opcion) => {
     const boton = el('button', { type: 'button', class: 'opcion' }, opcion);
     boton.addEventListener('click', () => responder(opcion));
     return boton;
   }));
-  $('completar-opciones').querySelector('button').focus();
+  $('completar-enunciado').focus();
 }
 
 function responder(opcion) {
-  const p = partida[actual];
+  const p = preguntas[actual];
   const bien = esCorrecta(p, opcion);
   aciertos.push(bien);
   for (const boton of $('completar-opciones').querySelectorAll('button')) {
@@ -79,51 +89,47 @@ function responder(opcion) {
     if (esCorrecta(p, boton.textContent)) boton.classList.add('bien');
     else if (boton.textContent === opcion) boton.classList.add('mal');
   }
-  $('completar-frase').textContent = `«${p.t.texto}»`;
-  $('completar-veredicto').textContent = bien ? '¡Correcto!' : `Casi. La palabra era «${p.oculta.palabra}».`;
+  if (p.tipo === 'palabra') $('completar-cita').textContent = `«${t.texto}»`;
+  $('completar-veredicto').textContent = bien ? '¡Correcto!' : (p.correcta.length > 40 ? 'Casi. La respuesta correcta está en verde.' : `Casi. La respuesta era «${p.correcta}».`);
   $('completar-veredicto').className = `completar-veredicto ${bien ? 'bien' : 'mal'}`;
-  $('completar-concepto').textContent = p.t.concepto;
-  $('completar-definicion').textContent = p.t.definicion;
+  $('completar-concepto').textContent = t.concepto;
+  $('completar-definicion').textContent = t.definicion;
   $('completar-retro').classList.remove('oculto');
-  const ultima = actual === partida.length - 1;
+  const ultima = actual === preguntas.length - 1;
   $('completar-siguiente').textContent = ultima ? 'Ver resultado' : 'Siguiente pregunta';
   $('completar-siguiente').classList.remove('oculto');
   $('completar-siguiente').focus();
-
-  // La etapa del trabalenguas de la ruta se registra al final con su mensaje; las demás, en segundo plano.
-  if (bien && p.t.id !== idInicial) {
-    completarEtapa(p.t.id, 'completa').catch((e) => console.error('No se pudo guardar la etapa', e));
-  }
 }
 
 function terminar() {
   const total = aciertos.filter(Boolean).length;
+  const minimo = minimoParaSuperar(preguntas.length);
+  const supero = total >= minimo;
   $('completar-pregunta').classList.add('oculto');
-  $('juego-meta').replaceChildren();
-  $('completar-puntaje').textContent = `${total} de ${partida.length}`;
-  $('completar-mensaje').textContent = total === partida.length ? '¡Partida perfecta!'
-    : total >= 3 ? '¡Buen trabajo! Repasa las definiciones de las que fallaste.' : 'Sigue practicando: vuelve a leer los trabalenguas en su ruta.';
-  $('completar-resumen').replaceChildren(...partida.map((p, i) => el('li', { class: aciertos[i] ? 'bien' : 'mal' },
+  $('juego-meta').replaceChildren(etiquetaArea(t.area), etiquetaDificultad(t.dificultad));
+  $('completar-puntaje').textContent = `${total} de ${preguntas.length}`;
+  $('completar-mensaje').textContent = total === preguntas.length ? '¡Perfecto! Entiendes el trabalenguas y su concepto.'
+    : supero ? '¡Bien! Repasa la pregunta que fallaste.'
+      : `Necesitas ${minimo} aciertos para superar la etapa. Repasa el concepto y vuelve a intentarlo.`;
+  $('completar-resumen').replaceChildren(...preguntas.map((p, i) => el('li', { class: aciertos[i] ? 'bien' : 'mal' },
     el('span', { 'aria-hidden': 'true' }, aciertos[i] ? '✓ ' : '✗ '),
     el('span', { class: 'sr-only' }, aciertos[i] ? 'Acertaste: ' : 'Fallaste: '),
-    el('a', { href: enlaceDetalle(p.t.id) }, p.t.titulo), ` · ${p.t.concepto}`)));
+    `${TIPOS[p.tipo]} · `, el('strong', {}, p.correcta))));
   $('completar-final').classList.remove('oculto');
   $('completar-otra').focus();
 
-  const inicial = partida.findIndex((p) => p.t.id === idInicial);
-  if (inicial !== -1) {
-    if (aciertos[inicial]) {
-      registrarEtapa($('resultado'), idInicial, 'completa');
-    } else {
-      const r = $('resultado');
-      r.className = 'resultado-etapa resultado-error';
-      r.replaceChildren(el('p', {}, `Para superar la etapa 3 de «${partida[inicial].t.titulo}» necesitas acertar su pregunta. Juega otra partida: siempre sale primero.`));
-    }
+  if (supero) {
+    registrarEtapa($('resultado'), t.id, 'completa');
+  } else {
+    const r = $('resultado');
+    r.className = 'resultado-etapa resultado-error';
+    r.replaceChildren(el('p', {}, 'Esta vez no se superó la etapa. ',
+      el('a', { href: enlaceEtapa(etapaPorClave('ordena'), t.id) }, 'Arma el trabalenguas'), ' otra vez o lee su definición en la ruta y vuelve a intentarlo.'));
   }
 }
 
 $('completar-siguiente').addEventListener('click', () => {
-  if (actual === partida.length - 1) return terminar();
+  if (actual === preguntas.length - 1) return terminar();
   actual += 1;
   pintarPregunta();
 });
