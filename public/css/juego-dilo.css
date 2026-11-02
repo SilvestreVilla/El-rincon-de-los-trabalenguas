@@ -1,0 +1,14 @@
+/* HU-24 · Dilo en voz alta */
+.dilo-paso { display: flex; flex-direction: column; gap: 14px; }
+.dilo-privacidad { font-size: 0.875rem; color: var(--gris); border-left: 3px solid var(--linea-fuerte); padding-left: 12px; }
+.dilo-escuchando { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem; color: var(--error); }
+.dilo-punto { width: 14px; height: 14px; border-radius: 50%; background: var(--error); }
+@media (prefers-reduced-motion: no-preference) {
+  .dilo-punto { animation: dilo-latido 1.2s ease-in-out infinite; }
+  @keyframes dilo-latido { 50% { opacity: 0.3; } }
+}
+.dilo-oido { min-height: 2.5em; color: var(--tinta-suave); font-style: italic; }
+.dilo-texto, .dilo-auto-texto { font-size: clamp(1.4rem, 3.6vw, 2.1rem); font-weight: 700; line-height: 1.45; }
+.dilo-texto .dicha { color: var(--ok); }
+.dilo-texto .faltante { color: var(--gris); opacity: 0.6; text-decoration: underline dotted; }
+.dilo-porcentaje { font-size: clamp(2.2rem, 6vw, 3.2rem); font-weight: 800; color: var(--acento); }

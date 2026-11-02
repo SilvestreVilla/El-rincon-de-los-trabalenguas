@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dilo en voz alta · El Rincón de los Trabalenguas</title>
+  <meta name="description" content="Di el trabalenguas de memoria con el micrófono y comprueba qué palabras dijiste bien.">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="stylesheet" href="css/juegos.css">
+  <link rel="stylesheet" href="css/juego-dilo.css">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <script type="module" src="js/juego-dilo.js"></script>
+</head>
+<body>
+  <header class="encabezado">
+    <nav aria-label="Principal">
+      <a href="index.html" class="marca"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#3346D3"/><path d="M9 13h16M9 18h11M9 23h7" stroke="#FFE27A" stroke-width="2.6" stroke-linecap="round"/></svg><span>El Rincón de los Trabalenguas</span></a>
+      <div class="nav-enlaces">
+        <a href="index.html" class="nav-texto">Catálogo</a>
+        <div id="nav-sesion" class="nav-enlaces">
+          <a href="login.html" class="boton boton-secundario">Iniciar sesión</a>
+          <a href="registro.html" class="boton">Crear cuenta</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <a id="volver-detalle" href="index.html" class="volver"><span aria-hidden="true">←</span> Volver a la ruta</a>
+
+    <p id="juego-cargando" class="detalle-ayuda" aria-live="polite">Cargando el juego…</p>
+
+    <section id="juego" class="juego oculto" aria-labelledby="juego-titulo">
+      <p id="juego-etapa" class="juego-etapa"></p>
+      <h1 id="juego-titulo"></h1>
+      <div id="juego-meta" class="juego-meta"></div>
+      <p class="juego-instrucciones">Es la última etapa: di el trabalenguas <strong>de memoria</strong>, sin verlo. Te escuchamos con el micrófono y marcamos las palabras que dijiste bien. Se supera con 80 % o más.</p>
+
+      <div id="dilo-inicio" class="dilo-paso">
+        <div class="acciones-detalle">
+          <button type="button" id="dilo-empezar" class="boton">🎙️ Empezar</button>
+          <button type="button" id="dilo-usar-auto" class="boton boton-secundario">Hacerlo sin micrófono</button>
+        </div>
+        <p class="dilo-privacidad">Al pulsar «Empezar» el navegador te pedirá permiso para usar el micrófono. El reconocimiento lo hace el navegador (en Chrome y Edge puede usar su servicio en internet); esta app no graba ni guarda tu voz, solo compara el texto reconocido.</p>
+      </div>
+
+      <div id="dilo-escuchando" class="dilo-paso oculto">
+        <p class="dilo-escuchando" role="status"><span class="dilo-punto" aria-hidden="true"></span> Escuchando… di el trabalenguas completo.</p>
+        <p id="dilo-oido" class="dilo-oido" aria-live="polite"></p>
+        <div class="acciones-detalle">
+          <button type="button" id="dilo-terminar" class="boton">Terminé</button>
+        </div>
+      </div>
+
+      <div id="dilo-resultado" class="dilo-paso oculto">
+        <p id="dilo-porcentaje" class="dilo-porcentaje"></p>
+        <p id="dilo-veredicto" role="status" aria-live="polite"></p>
+        <p id="dilo-texto" class="dilo-texto"></p>
+        <div class="acciones-detalle">
+          <button type="button" id="dilo-otra" class="boton boton-secundario">Intentar de nuevo</button>
+        </div>
+      </div>
+
+      <div id="dilo-auto" class="dilo-paso oculto">
+        <p id="dilo-auto-motivo" class="detalle-ayuda"></p>
+        <p>Dilo en voz alta de memoria. Cuando termines, pulsa «Ya lo dije» para ver el texto y compararlo.</p>
+        <div class="acciones-detalle">
+          <button type="button" id="dilo-auto-listo" class="boton">Ya lo dije</button>
+        </div>
+        <p id="dilo-auto-texto" class="dilo-auto-texto oculto"></p>
+        <div id="dilo-auto-pregunta" class="dilo-paso oculto">
+          <p><strong>¿Lo dijiste completo y sin trabarte?</strong></p>
+          <div class="acciones-detalle">
+            <button type="button" id="dilo-auto-si" class="boton">Sí</button>
+            <button type="button" id="dilo-auto-no" class="boton boton-secundario">No, lo intento otra vez</button>
+          </div>
+        </div>
+      </div>
+
+      <p id="dilo-estado" class="juego-estado" role="status" aria-live="polite"></p>
+      <div id="resultado" class="resultado-etapa oculto" role="status" aria-live="polite"></div>
+    </section>
+
+    <div id="no-encontrado" class="vacio oculto">
+      <h1>Trabalenguas no encontrado</h1>
+      <p>El enlace no existe o el trabalenguas todavía no está aprobado por la editorial.</p>
+      <a href="index.html" class="boton">Ir al catálogo</a>
+    </div>
+  </main>
+
+  <footer class="pie">
+    <div>
+      <span>El Rincón de los Trabalenguas · v0.1</span>
+      <a href="privacidad.html">Aviso de privacidad</a>
+    </div>
+  </footer>
+</body>
+</html>
