@@ -1,0 +1,31 @@
+/* HU-25 · Memorama de conceptos */
+.memorama-controles { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
+.memorama-controles label { display: inline-flex; gap: 10px; align-items: center; font-weight: 600; }
+.memorama-controles select { font: inherit; min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--linea-fuerte); background: var(--superficie); }
+.memorama-marcador { font-weight: 700; color: var(--tinta-suave); }
+.memorama-tablero { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 760px) { .memorama-tablero { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .memorama-tablero { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.carta {
+  font: inherit; min-height: 128px; padding: 10px; border-radius: 12px; cursor: pointer; text-align: left;
+  display: flex; flex-direction: column; gap: 6px; justify-content: flex-start;
+  border: 1px solid #2b3ab8; background: var(--acento); color: #fff;
+}
+.carta:hover:not(:disabled):not(.visible) { background: var(--acento-oscuro); }
+.carta-dorso { margin: auto; font-size: 2rem; font-weight: 800; color: var(--resaltado); }
+.carta.visible { background: var(--superficie); color: var(--tinta); border-color: var(--linea-fuerte); cursor: default; }
+.carta-concepto.visible .carta-texto { font-weight: 800; font-size: 1.1rem; }
+.carta-definicion.visible .carta-texto { font-size: 0.85rem; line-height: 1.4; }
+.carta-tipo { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gris); }
+.carta.encontrada { background: var(--ok-fondo); border-color: #9fd0a3; opacity: 1; }
+.carta.encontrada .carta-tipo { color: var(--ok); }
+@media (prefers-reduced-motion: no-preference) {
+  .carta { transition: background-color 0.15s, transform 0.15s; }
+  .carta.visible { transform: scale(1.02); }
+  .carta.encontrada { transform: none; }
+}
+.memorama-final { display: flex; flex-direction: column; gap: 14px; }
+.memorama-repaso { margin: 0; display: grid; gap: 8px; }
+.memorama-repaso div { border-left: 3px solid var(--acento); padding-left: 12px; }
+.memorama-repaso dt { font-weight: 800; }
+.memorama-repaso dd { margin: 0; color: var(--tinta-suave); }
