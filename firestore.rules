@@ -70,8 +70,18 @@ service cloud.firestore {
     }
 
     // ---------- progreso/{uid}_{trabalenguasId} ----------
-    // HU-07 (favoritos), HU-08 (dominado) y HU-09 (temporizador).
+    // HU-07 (favoritos), HU-08 (dominado), HU-09 (temporizador) y HU-21 (etapas de la ruta).
     // Cada usuario lee y escribe únicamente su propio progreso (RNF-03).
+    // HU-21: etapas es un mapa con solo lee, ordena, completa y dilo, todos booleanos.
+    function etapasValidas(datos) {
+      return !('etapas' in datos) || (datos.etapas is map
+        && datos.etapas.keys().hasOnly(['lee', 'ordena', 'completa', 'dilo'])
+        && (!('lee' in datos.etapas) || datos.etapas.lee is bool)
+        && (!('ordena' in datos.etapas) || datos.etapas.ordena is bool)
+        && (!('completa' in datos.etapas) || datos.etapas.completa is bool)
+        && (!('dilo' in datos.etapas) || datos.etapas.dilo is bool));
+    }
+
     match /progreso/{docId} {
       allow get: if autenticado() && docId.matches(request.auth.uid + '_.*');
       allow list: if autenticado() && resource.data.usuarioId == request.auth.uid;
@@ -79,14 +89,15 @@ service cloud.firestore {
       allow create, update: if autenticado()
         && docId.matches(request.auth.uid + '_.*')
         && request.resource.data.usuarioId == request.auth.uid
-        && request.resource.data.keys().hasOnly(['usuarioId', 'trabalenguasId', 'esFavorito', 'dominado', 'mejorTiempoSeg', 'practicas', 'ultimaPractica'])
+        && request.resource.data.keys().hasOnly(['usuarioId', 'trabalenguasId', 'esFavorito', 'dominado', 'mejorTiempoSeg', 'practicas', 'ultimaPractica', 'etapas'])
         && (!('esFavorito' in request.resource.data) || request.resource.data.esFavorito is bool)
         // HU-08: dominado es un booleano.
         && (!('dominado' in request.resource.data) || request.resource.data.dominado is bool)
         // HU-09: mejor tiempo (segundos, mayor a 0), número de prácticas y fecha de la última práctica.
         && (!('mejorTiempoSeg' in request.resource.data) || (request.resource.data.mejorTiempoSeg is number && request.resource.data.mejorTiempoSeg > 0))
         && (!('practicas' in request.resource.data) || request.resource.data.practicas is int)
-        && (!('ultimaPractica' in request.resource.data) || request.resource.data.ultimaPractica is timestamp);
+        && (!('ultimaPractica' in request.resource.data) || request.resource.data.ultimaPractica is timestamp)
+        && etapasValidas(request.resource.data);
 
       allow delete: if false;
     }

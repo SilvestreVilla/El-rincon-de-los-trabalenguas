@@ -328,3 +328,32 @@ describe('mis envíos (HU-15)', () => {
     await assertFails(getDoc(doc(beto(), 'envios/ana2')));
   });
 });
+
+describe('progreso: etapas de la ruta (HU-21)', () => {
+  const base = { usuarioId: 'ana', trabalenguasId: 't1' };
+
+  test('un usuario completa una etapa y luego otra (merge del mapa)', async () => {
+    await assertSucceeds(setDoc(doc(ana(), 'progreso/ana_t1'), { ...base, etapas: { lee: true } }, { merge: true }));
+    await assertSucceeds(setDoc(doc(ana(), 'progreso/ana_t1'), { ...base, etapas: { ordena: true } }, { merge: true }));
+  });
+
+  test('al completar la última etapa se guarda dominado en la misma escritura', async () => {
+    await assertSucceeds(setDoc(doc(ana(), 'progreso/ana_t1'), {
+      ...base, etapas: { lee: true, ordena: true, completa: true, dilo: true }, dominado: true,
+    }, { merge: true }));
+  });
+
+  test('no se aceptan etapas desconocidas', async () => {
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { ...base, etapas: { lee: true, trampa: true } }));
+  });
+
+  test('cada etapa debe ser booleana y etapas debe ser un mapa', async () => {
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { ...base, etapas: { dilo: 'si' } }));
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { ...base, etapas: ['lee'] }));
+    await assertFails(setDoc(doc(ana(), 'progreso/ana_t1'), { ...base, etapas: true }));
+  });
+
+  test('nadie completa etapas en el progreso de otra persona', async () => {
+    await assertFails(setDoc(doc(beto(), 'progreso/ana_t1'), { ...base, etapas: { lee: true } }, { merge: true }));
+  });
+});

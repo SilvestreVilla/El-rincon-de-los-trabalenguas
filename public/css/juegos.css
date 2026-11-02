@@ -1,0 +1,43 @@
+/* HU-21 · Ruta de aprendizaje y esqueleto común de las páginas de juego.
+   Se carga después de estilos.css y usa sus variables. Cada juego agrega su propio archivo. */
+
+/* ---------- Ruta en el detalle ---------- */
+.ruta { border-top: 1px solid var(--linea); padding-top: 18px; display: flex; flex-direction: column; gap: 12px; }
+.ruta-cabecera { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+.ruta-cabecera h2 { font-size: 1.25rem; }
+.ruta-resumen { font-weight: 600; color: var(--tinta-suave); display: inline-flex; gap: 8px; align-items: center; }
+.ruta-etapas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ruta-etapa {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center;
+  padding: 10px 12px; border: 1px solid var(--linea); border-radius: 12px; background: var(--superficie);
+}
+.ruta-etapa.siguiente { border-color: var(--acento); box-shadow: var(--sombra-foco); }
+.ruta-etapa.hecha { background: var(--ok-fondo); border-color: #b9dcbb; }
+.ruta-numero {
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  font-weight: 800; background: #e7eafe; color: #2b3ab8;
+}
+.ruta-etapa.hecha .ruta-numero { background: var(--ok); color: #fff; }
+.ruta-info { display: flex; flex-direction: column; min-width: 0; }
+.ruta-info span { font-size: 0.875rem; color: var(--gris); }
+.insignia-dominado { background: var(--ok); color: #fff; border-radius: 999px; padding: 2px 10px; font-size: 0.85rem; }
+@media (max-width: 520px) {
+  .ruta-etapa { grid-template-columns: auto 1fr; }
+  .ruta-etapa .boton { grid-column: 1 / -1; }
+}
+
+/* ---------- Páginas de juego ---------- */
+.juego { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio); padding: clamp(18px, 4vw, 36px); display: flex; flex-direction: column; gap: 18px; }
+.juego-etapa { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--acento); }
+.juego h1 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; }
+.juego-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.juego-concepto { font-size: 0.9rem; color: var(--gris); }
+.juego-concepto strong { color: var(--tinta); }
+.juego-instrucciones { color: var(--tinta-suave); max-width: 65ch; }
+.juego-estado { color: var(--gris); min-height: 1.5em; }
+
+.resultado-etapa { border-radius: 12px; padding: 16px; background: var(--ok-fondo); color: var(--ok); display: flex; flex-direction: column; gap: 10px; }
+.resultado-etapa a:not(.boton) { color: var(--ok); font-weight: 600; }
+.resultado-titulo { font-weight: 800; font-size: 1.1rem; }
+.resultado-logro { background: #fff6d6; color: #6b4e00; border: 1px solid var(--resaltado); }
+.resultado-error { background: var(--error-fondo); color: #8e2a20; }
