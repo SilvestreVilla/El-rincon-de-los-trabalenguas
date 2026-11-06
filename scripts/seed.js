@@ -11,6 +11,7 @@ import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
 const AREAS = ['Scrum', 'Planeación', 'Riesgos', 'Calidad', 'Liderazgo'];
 const DIFICULTADES = ['Fácil', 'Medio', 'Difícil'];
+const FUENTES = ['Guía Scrum', 'PMBOK', 'Guía Scrum y PMBOK', 'Prácticas ágiles', 'Ingeniería de software'];
 
 const { trabalenguas } = JSON.parse(readFileSync(new URL('../data/trabalenguas.json', import.meta.url), 'utf8'));
 
@@ -28,6 +29,8 @@ for (const t of trabalenguas) {
   if (t.definicion.length > 200) errores.push(`${donde}: la definición pasa de 200 caracteres (${t.definicion.length})`);
   if (!AREAS.includes(t.area)) errores.push(`${donde}: área desconocida «${t.area}»`);
   if (!DIFICULTADES.includes(t.dificultad)) errores.push(`${donde}: dificultad desconocida «${t.dificultad}»`);
+  // De qué material sale el concepto (obligatorio en la semilla).
+  if (!FUENTES.includes(t.fuente)) errores.push(`${donde}: fuente desconocida «${t.fuente}»; usa una de: ${FUENTES.join(', ')}`);
   // HU-14: ejemplos cotidianos del concepto (opcionales; el juego usa dos).
   if (t.ejemplos !== undefined) {
     if (!Array.isArray(t.ejemplos) || t.ejemplos.length < 1 || t.ejemplos.length > 3) errores.push(`${donde}: «ejemplos» debe ser una lista de 1 a 3 frases`);
@@ -59,3 +62,4 @@ await lote.commit();
 console.log(`Listo: ${trabalenguas.length} trabalenguas cargados en ${enEmulador ? 'el emulador' : 'Firestore'}.`);
 const porArea = Object.fromEntries(AREAS.map((a) => [a, trabalenguas.filter((t) => t.area === a).length]));
 console.log('Por área:', porArea);
+console.log('Por fuente:', Object.fromEntries(FUENTES.map((f) => [f, trabalenguas.filter((t) => t.fuente === f).length])));

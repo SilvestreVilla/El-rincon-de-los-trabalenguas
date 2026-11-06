@@ -1,7 +1,7 @@
 // HU-05 · Detalle con concepto y definición (T1-20, T1-21)
 import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { db } from './firebase.js';
-import { etiquetaArea, etiquetaDificultad } from './ui.js';
+import { etiquetaArea, etiquetaDificultad, etiquetaFuente } from './ui.js';
 import { iniciarFavorito } from './favoritos.js';
 import { iniciarTemporizador } from './temporizador.js';
 import { iniciarRuta } from './ruta.js';
@@ -33,7 +33,7 @@ async function cargar() {
 
   const t = instantanea.data();
   document.title = `${t.titulo} · El Rincón de los Trabalenguas`;
-  $('detalle-meta').replaceChildren(etiquetaArea(t.area), etiquetaDificultad(t.dificultad));
+  $('detalle-meta').replaceChildren(...[etiquetaArea(t.area), etiquetaDificultad(t.dificultad), etiquetaFuente(t.fuente)].filter(Boolean));
   $('detalle-titulo').textContent = t.titulo;
   $('detalle-texto').textContent = `«${t.texto}»`;
   $('detalle-autor').textContent = t.autorNombre ?? 'Anónimo';
@@ -41,6 +41,11 @@ async function cargar() {
   $('concepto-definicion').textContent = t.definicion;
   $('concepto-area').textContent = t.area;
   $('concepto-dificultad').textContent = t.dificultad;
+  if (t.fuente) {
+    $('concepto-fuente').textContent = t.fuente;
+    $('concepto-fuente').classList.remove('oculto');
+    $('concepto-fuente-dt').classList.remove('oculto');
+  }
 
   $('detalle-cargando').classList.add('oculto');
   $('detalle').classList.remove('oculto');
