@@ -18,6 +18,27 @@ describe('Preguntas del trabalenguas (HU-14)', () => {
     assert.equal(fraseConHueco(texto, palabraOculta(texto)), 'Planea, _____ y entrega.');
   });
 
+  test('si la palabra oculta se repite, se ocultan todas las veces (HU-14, revisión del 6 de noviembre)', () => {
+    const texto = 'La tarea con holgura holgada se huelga; la tarea sin Holgura no se huelga ni un rato.';
+    const frase = fraseConHueco(texto, palabraOculta(texto));
+    assert.equal(frase, 'La tarea con _____ holgada se huelga; la tarea sin _____ no se huelga ni un rato.');
+  });
+
+  test('con varios huecos, el enunciado avisa que es la misma palabra', () => {
+    const t = todos.find((x) => x.id === 'holgura-holgada');
+    assert.equal(armarPreguntas(t, todos)[0].enunciado, '¿Qué palabra falta? Es la misma en los 2 huecos.');
+    const unico = todos.find((x) => x.id === 'tres-tristes-tareas');
+    assert.equal(armarPreguntas(unico, todos)[0].enunciado, '¿Qué palabra falta en el trabalenguas?');
+  });
+
+  test('en ningún trabalenguas de la semilla queda visible la respuesta de la frase', () => {
+    for (const t of todos) {
+      const p = armarPreguntas(t, todos).find((x) => x.tipo === 'palabra');
+      const visibles = p.cita.split(/\s+/).map((w) => normalizar(w).replace(/[^a-z0-9]/g, ''));
+      assert.ok(!visibles.includes(normalizar(p.correcta)), `${t.id}: ${p.cita}`);
+    }
+  });
+
   test('cada trabalenguas de la semilla tiene 5 preguntas con 4 opciones distintas y una sola correcta', () => {
     for (const t of todos) {
       const preguntas = armarPreguntas(t, todos);

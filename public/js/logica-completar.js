@@ -26,9 +26,13 @@ export function palabraOculta(texto) {
   return mejor;
 }
 
-/** Texto con la palabra oculta cambiada por un hueco; conserva la puntuación de alrededor. */
+/**
+ * Texto con la palabra oculta cambiada por un hueco en TODAS las veces que aparece
+ * (sin importar mayúsculas ni acentos), para que la respuesta no quede a la vista.
+ * Conserva la puntuación de alrededor.
+ */
 export function fraseConHueco(texto, oculta, hueco = '_____') {
-  return palabras(texto).map((p, i) => (i === oculta.indice ? p.replace(oculta.palabra, hueco) : p)).join(' ');
+  return palabras(texto).map((p) => (limpiarPalabra(p) === oculta.limpia ? p.replace(sinSignos(p), hueco) : p)).join(' ');
 }
 
 // Los distractores copian el uso de mayúscula de la respuesta, para que no la delaten.
@@ -88,10 +92,12 @@ export function armarPreguntas(t, todos, azar = Math.random) {
   const lista = [];
   const oculta = palabraOculta(t.texto);
   if (oculta) {
+    const cita = fraseConHueco(t.texto, oculta);
+    const huecos = cita.split('_____').length - 1;
     lista.push({
       tipo: 'palabra',
-      enunciado: '¿Qué palabra falta en el trabalenguas?',
-      cita: fraseConHueco(t.texto, oculta),
+      enunciado: huecos > 1 ? `¿Qué palabra falta? Es la misma en los ${huecos} huecos.` : '¿Qué palabra falta en el trabalenguas?',
+      cita,
       correcta: oculta.palabra,
       opciones: barajar([oculta.palabra, ...distractoresPalabra(t, oculta, todos, azar)], azar),
       explicacion: `«${t.texto}»`,
