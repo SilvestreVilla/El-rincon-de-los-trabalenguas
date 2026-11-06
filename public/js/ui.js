@@ -35,6 +35,11 @@ export function etiquetaDificultad(dificultad) {
     `${PUNTOS_DIFICULTAD[dificultad] ?? ''} ${dificultad}`);
 }
 
+/** De qué material sale el concepto (Guía Scrum, PMBOK, ambos…). Vacío si el trabalenguas no la tiene. */
+export function etiquetaFuente(fuente) {
+  return fuente ? el('span', { class: 'fuente', title: 'Fuente del concepto' }, `📖 ${fuente}`) : null;
+}
+
 export function correoValido(correo) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim());
 }

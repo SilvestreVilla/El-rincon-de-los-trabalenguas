@@ -116,6 +116,8 @@ main { flex: 1; width: 100%; max-width: 1200px; margin: 0 auto; padding: 36px 20
 .area-calidad { background: #e2f3e3; color: #2c6b31; }
 .area-liderazgo { background: #f0e6fa; color: #6a2f9e; }
 .dificultad { font-size: 0.85rem; color: var(--gris); white-space: nowrap; }
+/* De qué material sale el concepto (Guía Scrum, PMBOK…) */
+.fuente { font-size: 0.75rem; font-weight: 600; padding: 4px 9px; border-radius: 6px; border: 1px solid var(--linea-fuerte); color: var(--tinta-suave); white-space: nowrap; }
 
 /* ---------- Búsqueda y filtros (HU-06) ---------- */
 .filtros {
@@ -131,7 +133,7 @@ main { flex: 1; width: 100%; max-width: 1200px; margin: 0 auto; padding: 36px 20
 }
 .filtros .boton { width: 100%; }
 @media (min-width: 720px) {
-  .filtros { grid-template-columns: 2fr 1fr 1fr auto; }
+  .filtros { grid-template-columns: 2fr 1fr 1fr 1fr auto; }
   .filtros .boton { width: auto; }
 }
 

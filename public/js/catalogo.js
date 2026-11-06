@@ -2,7 +2,7 @@
 // HU-06 · Búsqueda y filtros combinables (T2-02)
 import { collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { db } from './firebase.js';
-import { el, etiquetaArea, etiquetaDificultad } from './ui.js';
+import { el, etiquetaArea, etiquetaDificultad, etiquetaFuente } from './ui.js';
 
 const lista = document.getElementById('catalogo');
 const vacio = document.getElementById('catalogo-vacio');
@@ -14,6 +14,7 @@ const esqueletos = [...lista.children];
 const campoBusqueda = document.getElementById('busqueda');
 const campoArea = document.getElementById('filtro-area');
 const campoDificultad = document.getElementById('filtro-dificultad');
+const campoFuente = document.getElementById('filtro-fuente');
 const sinResultados = document.getElementById('sin-resultados');
 const botonesLimpiar = [document.getElementById('limpiar'), document.getElementById('limpiar-vacio')];
 
@@ -23,7 +24,7 @@ let todos = [];
 function tarjeta(id, t) {
   return el('li', {},
     el('a', { href: `trabalenguas.html?id=${encodeURIComponent(id)}`, class: 'tarjeta' },
-      el('div', { class: 'tarjeta-fila' }, etiquetaArea(t.area), etiquetaDificultad(t.dificultad)),
+      el('div', { class: 'tarjeta-fila' }, etiquetaArea(t.area), etiquetaDificultad(t.dificultad), etiquetaFuente(t.fuente)),
       el('h2', {}, t.titulo),
       el('p', { class: 'tarjeta-texto' }, `«${t.texto}»`),
       el('p', { class: 'tarjeta-concepto' }, 'Concepto: ', el('strong', {}, t.concepto)),
@@ -39,20 +40,23 @@ function normalizar(texto) {
     .replace(/[\u0300-\u036f]/g, '');
 }
 
-// Devuelve solo los trabalenguas que cumplen texto Y área Y dificultad
+// Devuelve solo los trabalenguas que cumplen texto Y área Y dificultad Y fuente
 function filtrar() {
   const busqueda = normalizar(campoBusqueda.value.trim());
   const area = campoArea.value;
   const dificultad = campoDificultad.value;
+  const fuente = campoFuente.value;
 
   return todos.filter((t) => {
     const coincideArea = !area || t.area === area;
     const coincideDificultad = !dificultad || t.dificultad === dificultad;
+    // «Guía Scrum y PMBOK» aparece al filtrar por cualquiera de las dos.
+    const coincideFuente = !fuente || (t.fuente ?? '').split(' y ').includes(fuente);
     const coincideTexto =
       !busqueda ||
       normalizar(t.texto).includes(busqueda) ||
       normalizar(t.concepto).includes(busqueda);
-    return coincideArea && coincideDificultad && coincideTexto;
+    return coincideArea && coincideDificultad && coincideFuente && coincideTexto;
   });
 }
 
@@ -118,6 +122,7 @@ function limpiar() {
   campoBusqueda.value = '';
   campoArea.value = '';
   campoDificultad.value = '';
+  campoFuente.value = '';
   pintar();
   campoBusqueda.focus();
 }
@@ -126,6 +131,7 @@ botonesLimpiar.forEach((boton) => boton.addEventListener('click', limpiar));
 campoBusqueda.addEventListener('input', pintar);
 campoArea.addEventListener('change', pintar);
 campoDificultad.addEventListener('change', pintar);
+campoFuente.addEventListener('change', pintar);
 
 document.getElementById('reintentar').addEventListener('click', cargar);
 cargar();
