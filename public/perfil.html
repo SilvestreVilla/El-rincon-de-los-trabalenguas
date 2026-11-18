@@ -41,6 +41,38 @@
           <button type="button" id="cerrar-sesion" class="boton boton-secundario">Cerrar sesión</button>
         </div>
       </section>
+
+      <section id="zona-eliminar" class="tarjeta-form zona-peligro oculto" aria-labelledby="eliminar-titulo">
+        <h2 id="eliminar-titulo">Eliminar mi cuenta</h2>
+        <p>Se borran tu cuenta, tu correo, tus favoritos, tus tiempos, tu avance en la ruta de aprendizaje, tus dominados y tus propuestas. Los trabalenguas tuyos que ya se publicaron se quedan en el catálogo, pero con autor «Anónimo». No se puede deshacer.</p>
+        <p class="ayuda">Más detalles en el <a href="privacidad.html">aviso de privacidad</a>.</p>
+        <button type="button" id="abrir-eliminar" class="boton boton-secundario boton-peligro">Quiero eliminar mi cuenta</button>
+
+        <form id="form-eliminar" class="oculto" novalidate>
+          <div id="aviso-eliminar" class="aviso oculto" role="alert"></div>
+          <div class="campo">
+            <label for="eliminar-contrasena">Tu contraseña</label>
+            <input id="eliminar-contrasena" type="password" autocomplete="current-password" required aria-describedby="error-eliminar-contrasena">
+            <span id="error-eliminar-contrasena" class="error-campo oculto"></span>
+          </div>
+          <div class="campo">
+            <label for="eliminar-confirmacion">Para confirmar, escribe ELIMINAR</label>
+            <input id="eliminar-confirmacion" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" required aria-describedby="error-eliminar-confirmacion">
+            <span id="error-eliminar-confirmacion" class="error-campo oculto"></span>
+          </div>
+          <p id="eliminar-progreso" class="ayuda" aria-live="polite"></p>
+          <div class="acciones">
+            <button type="submit" id="confirmar-eliminar" class="boton boton-peligro-lleno">Eliminar mi cuenta para siempre</button>
+            <button type="button" id="cancelar-eliminar" class="boton boton-secundario">Cancelar</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="cuenta-eliminada" class="tarjeta-form oculto" role="status" aria-labelledby="eliminada-titulo">
+        <h1 id="eliminada-titulo" tabindex="-1">Tu cuenta se eliminó</h1>
+        <p id="eliminada-detalle"></p>
+        <div class="acciones"><a href="index.html" class="boton">Ir al catálogo</a></div>
+      </section>
     </div>
   </main>
 

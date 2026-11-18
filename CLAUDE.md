@@ -35,12 +35,12 @@ public/                  sitio que se publica en Hosting
   juego-completar.html   etapa 2 · Preguntas del trabalenguas (HU-14)
   juego-memorama.html    etapa 3 · Memorama de conceptos (HU-25)
   favoritos.html         «Mis favoritos» (HU-07)
-  registro.html, login.html, recuperar.html, perfil.html (HU-01 a HU-03)
+  registro.html, login.html, recuperar.html, perfil.html (HU-01 a HU-03; el perfil también elimina la cuenta, HU-18)
   rompehielos.html       Rompehielos del Daily (HU-11)
   proponer.html          proponer un trabalenguas (HU-12)
   envios.html            «Mis envíos» con estado y motivo de rechazo (HU-15)
   moderar.html           moderación del editor: aprobar o rechazar envíos (HU-13), solo rol «moderador»
-  privacidad.html        borrador de aviso de privacidad (HU-18 lo termina)
+  privacidad.html        aviso de privacidad (HU-18)
   css/estilos.css        guía de estilos (variables en :root); juegos.css y juego-*.css para la ruta
   js/firebase-config.js  configuración del proyecto real (no es secreta)
   js/firebase.js         inicializa Firebase y conecta los emuladores en local
@@ -60,10 +60,10 @@ tests/reglas.test.js     pruebas de reglas (node:test + @firebase/rules-unit-tes
 ### Modelo de datos (Firestore)
 
 - `usuarios/{uid}`: `email`, `rol` (siempre «usuario» desde el cliente; «moderador» lo asigna el PO en la consola), `aceptoPrivacidad`, `mayorDeEdad`, `creado`, desde HU-12 `enviosPendientes` y `ultimoEnvio`, y desde HU-13 `ultimaRevision` (último envío del autor que revisó el moderador). Solo el dueño lo lee. Nadie cambia su rol. El dueño solo puede subir `enviosPendientes` de 1 en 1 (máx. 5) en el mismo batch que crea un envío; el moderador solo puede bajarlo de 1 en 1 en el mismo batch en que revisa uno de sus envíos.
-- `trabalenguas/{id}`: `titulo`, `texto` (20 a 500 caracteres), `concepto`, `definicion` (máx. 200), `area` (Scrum, Planeación, Riesgos, Calidad, Liderazgo), `dificultad` (Fácil, Medio, Difícil), `autorNombre`, `estado` (aprobado, pendiente, rechazado), `creado`, y desde HU-14 `ejemplos` (1 a 3 frases de la vida diaria, de 20 a 160 caracteres; la semilla trae 2). Solo se leen los aprobados. Desde HU-13, el moderador lo crea al aprobar un envío (mismo id que el envío, `fuente` y `ejemplos` opcionales); nadie lo cambia ni lo borra desde el cliente.
-- `progreso/{uid}_{trabalenguasId}`: `usuarioId`, `trabalenguasId`, `esFavorito`, `dominado`, `mejorTiempoSeg`, `practicas`, `ultimaPractica`, y desde HU-21 `etapas` (mapa de booleanos: `ordena`, `completa`, `memorama`; las reglas también aceptan `lee` y `dilo`, que quedaron de las etapas retiradas). Cada usuario lee y escribe solo lo suyo; no se borra. Desde HU-21, `dominado` lo pone la app al completar las 3 etapas; ya no se marca a mano.
+- `trabalenguas/{id}`: `titulo`, `texto` (20 a 500 caracteres), `concepto`, `definicion` (máx. 200), `area` (Scrum, Planeación, Riesgos, Calidad, Liderazgo), `dificultad` (Fácil, Medio, Difícil), `autorNombre`, `estado` (aprobado, pendiente, rechazado), `creado`, y desde HU-14 `ejemplos` (1 a 3 frases de la vida diaria, de 20 a 160 caracteres; la semilla trae 2). Solo se leen los aprobados. Desde HU-13, el moderador lo crea al aprobar un envío (mismo id que el envío, `fuente` y `ejemplos` opcionales); nadie lo borra desde el cliente, y lo único que se cambia es `autorNombre` a «Anónimo», solo por su autor al eliminar su cuenta (HU-18).
+- `progreso/{uid}_{trabalenguasId}`: `usuarioId`, `trabalenguasId`, `esFavorito`, `dominado`, `mejorTiempoSeg`, `practicas`, `ultimaPractica`, y desde HU-21 `etapas` (mapa de booleanos: `ordena`, `completa`, `memorama`; las reglas también aceptan `lee` y `dilo`, que quedaron de las etapas retiradas). Cada usuario lee, escribe y (desde HU-18, al eliminar su cuenta) borra solo lo suyo. Desde HU-21, `dominado` lo pone la app al completar las 3 etapas; ya no se marca a mano.
 
-- `envios/{id}` (HU-12): `autorId`, `autorNombre` (nombre público, 1 a 40), `titulo` (máx. 80), `texto` (20 a 500), `concepto` (máx. 60), `definicion` (máx. 200), `area`, `dificultad`, `estado` («pendiente» al crear), `creado`, y `motivo` cuando el editor lo rechaza (lo escribe HU-13; HU-15 lo muestra). El autor lo lee con consultas filtradas por `autorId`; el moderador lee todos. Desde HU-13 el moderador lo pasa, una sola vez, de «pendiente» a «aprobado» (publicando el trabalenguas en el mismo batch) o a «rechazado» (con `motivo` de 5 a 200 caracteres), guarda `revisado` y baja el contador del autor en el mismo batch.
+- `envios/{id}` (HU-12): `autorId`, `autorNombre` (nombre público, 1 a 40), `titulo` (máx. 80), `texto` (20 a 500), `concepto` (máx. 60), `definicion` (máx. 200), `area`, `dificultad`, `estado` («pendiente» al crear), `creado`, y `motivo` cuando el editor lo rechaza (lo escribe HU-13; HU-15 lo muestra). El autor lo lee con consultas filtradas por `autorId`; el moderador lee todos. Desde HU-13 el moderador lo pasa, una sola vez, de «pendiente» a «aprobado» (publicando el trabalenguas en el mismo batch) o a «rechazado» (con `motivo` de 5 a 200 caracteres), guarda `revisado` y baja el contador del autor en el mismo batch. Desde HU-18 el autor borra sus envíos al eliminar su cuenta (si uno está publicado, su trabalenguas debe quedar como «Anónimo» en el mismo batch).
 
 Cualquier colección nueva (por ejemplo, `partidas`) necesita: regla nueva en `firestore.rules`, sus pruebas en `tests/reglas.test.js` y publicar las reglas.
 
@@ -183,6 +183,7 @@ Como usuario, necesito subir de nivel (Integrante → Líder de Sprint → Direc
 Como usuario, necesito consultar el aviso de privacidad y eliminar mi cuenta, para controlar mis datos.
 - El aviso de privacidad es accesible desde el pie de todas las páginas.
 - Eliminar la cuenta pide confirmación y borra usuario, progreso y partidas. Sus aportaciones aprobadas quedan como «Anónimo».
+- Implementado (17 nov) en `js/eliminar-cuenta.js`: pide la contraseña y escribir ELIMINAR. No hay colección `partidas`; los resultados de los juegos están en `progreso`.
 
 **HU-19 Reto por equipos** (Could, 5 pts, fuera de la v1.0): criterios por definir en el refinamiento.
 **HU-20 Integración nativa con la editorial** (Won't, 13 pts): queda para la v2.0.
