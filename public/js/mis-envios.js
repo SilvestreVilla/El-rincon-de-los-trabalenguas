@@ -31,7 +31,8 @@ function tarjeta(envio) {
       el('div', { class: 'tarjeta-fila' }, etiquetaArea(envio.area), etiquetaDificultad(envio.dificultad)),
       envio.estado === 'rechazado' && el('p', { class: 'motivo-rechazo' },
         el('strong', {}, 'Motivo: '), envio.motivo || 'El editor no indicó un motivo.'),
-      envio.estado === 'aprobado' && el('p', { class: 'ayuda' }, 'Ya aparece en el catálogo.'),
+      envio.estado === 'aprobado' && el('p', { class: 'ayuda' }, 'Ya aparece en el catálogo. ',
+        el('a', { href: `trabalenguas.html?id=${encodeURIComponent(envio.id)}` }, 'Verlo')),
       el('p', { class: 'tarjeta-concepto' }, 'Concepto: ', el('strong', {}, envio.concepto)),
     ),
   );

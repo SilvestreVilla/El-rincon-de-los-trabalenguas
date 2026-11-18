@@ -39,6 +39,7 @@ public/                  sitio que se publica en Hosting
   rompehielos.html       Rompehielos del Daily (HU-11)
   proponer.html          proponer un trabalenguas (HU-12)
   envios.html            «Mis envíos» con estado y motivo de rechazo (HU-15)
+  moderar.html           moderación del editor: aprobar o rechazar envíos (HU-13), solo rol «moderador»
   privacidad.html        borrador de aviso de privacidad (HU-18 lo termina)
   css/estilos.css        guía de estilos (variables en :root); juegos.css y juego-*.css para la ruta
   js/firebase-config.js  configuración del proyecto real (no es secreta)
@@ -58,11 +59,11 @@ tests/reglas.test.js     pruebas de reglas (node:test + @firebase/rules-unit-tes
 
 ### Modelo de datos (Firestore)
 
-- `usuarios/{uid}`: `email`, `rol` (siempre «usuario» desde el cliente; «moderador» lo asigna el PO en la consola), `aceptoPrivacidad`, `mayorDeEdad`, `creado`, y desde HU-12 `enviosPendientes` y `ultimoEnvio`. Solo el dueño lo lee. Nadie cambia su rol. El dueño solo puede subir `enviosPendientes` de 1 en 1 (máx. 5) en el mismo batch que crea un envío.
-- `trabalenguas/{id}`: `titulo`, `texto` (20 a 500 caracteres), `concepto`, `definicion` (máx. 200), `area` (Scrum, Planeación, Riesgos, Calidad, Liderazgo), `dificultad` (Fácil, Medio, Difícil), `autorNombre`, `estado` (aprobado, pendiente, rechazado), `creado`, y desde HU-14 `ejemplos` (1 a 3 frases de la vida diaria, de 20 a 160 caracteres; la semilla trae 2). Solo se leen los aprobados. El cliente no escribe aquí todavía.
+- `usuarios/{uid}`: `email`, `rol` (siempre «usuario» desde el cliente; «moderador» lo asigna el PO en la consola), `aceptoPrivacidad`, `mayorDeEdad`, `creado`, desde HU-12 `enviosPendientes` y `ultimoEnvio`, y desde HU-13 `ultimaRevision` (último envío del autor que revisó el moderador). Solo el dueño lo lee. Nadie cambia su rol. El dueño solo puede subir `enviosPendientes` de 1 en 1 (máx. 5) en el mismo batch que crea un envío; el moderador solo puede bajarlo de 1 en 1 en el mismo batch en que revisa uno de sus envíos.
+- `trabalenguas/{id}`: `titulo`, `texto` (20 a 500 caracteres), `concepto`, `definicion` (máx. 200), `area` (Scrum, Planeación, Riesgos, Calidad, Liderazgo), `dificultad` (Fácil, Medio, Difícil), `autorNombre`, `estado` (aprobado, pendiente, rechazado), `creado`, y desde HU-14 `ejemplos` (1 a 3 frases de la vida diaria, de 20 a 160 caracteres; la semilla trae 2). Solo se leen los aprobados. Desde HU-13, el moderador lo crea al aprobar un envío (mismo id que el envío, `fuente` y `ejemplos` opcionales); nadie lo cambia ni lo borra desde el cliente.
 - `progreso/{uid}_{trabalenguasId}`: `usuarioId`, `trabalenguasId`, `esFavorito`, `dominado`, `mejorTiempoSeg`, `practicas`, `ultimaPractica`, y desde HU-21 `etapas` (mapa de booleanos: `ordena`, `completa`, `memorama`; las reglas también aceptan `lee` y `dilo`, que quedaron de las etapas retiradas). Cada usuario lee y escribe solo lo suyo; no se borra. Desde HU-21, `dominado` lo pone la app al completar las 3 etapas; ya no se marca a mano.
 
-- `envios/{id}` (HU-12): `autorId`, `autorNombre` (nombre público, 1 a 40), `titulo` (máx. 80), `texto` (20 a 500), `concepto` (máx. 60), `definicion` (máx. 200), `area`, `dificultad`, `estado` («pendiente» al crear), `creado`, y `motivo` cuando el editor lo rechaza (lo escribe HU-13; HU-15 lo muestra). Solo el autor lo lee, con consultas filtradas por `autorId`. El cliente no lo cambia ni lo borra; aprobar o rechazar llega con HU-13.
+- `envios/{id}` (HU-12): `autorId`, `autorNombre` (nombre público, 1 a 40), `titulo` (máx. 80), `texto` (20 a 500), `concepto` (máx. 60), `definicion` (máx. 200), `area`, `dificultad`, `estado` («pendiente» al crear), `creado`, y `motivo` cuando el editor lo rechaza (lo escribe HU-13; HU-15 lo muestra). El autor lo lee con consultas filtradas por `autorId`; el moderador lee todos. Desde HU-13 el moderador lo pasa, una sola vez, de «pendiente» a «aprobado» (publicando el trabalenguas en el mismo batch) o a «rechazado» (con `motivo` de 5 a 200 caracteres), guarda `revisado` y baja el contador del autor en el mismo batch.
 
 Cualquier colección nueva (por ejemplo, `partidas`) necesita: regla nueva en `firestore.rules`, sus pruebas en `tests/reglas.test.js` y publicar las reglas.
 
@@ -82,6 +83,7 @@ npm run deploy                         # producción: hosting + reglas + índice
 - En cmd **no** se ponen comentarios con `#` en la misma línea del comando.
 - En PowerShell, la variable se define con `$env:FIRESTORE_EMULATOR_HOST="127.0.0.1:8080"` (y `$env:GOOGLE_APPLICATION_CREDENTIALS="serviceAccount.json"` para la semilla en producción).
 - Los emuladores también abren su interfaz web en http://localhost:4000.
+- Dar el rol de moderador (HU-13): en la consola de Firebase → Firestore → `usuarios/{uid}` de la cuenta del editor, cambiar `rol` a `moderador`. Al volver a entrar a «Mi perfil» aparece «Moderar envíos». No se puede hacer desde la app.
 - Semilla en producción: `set GOOGLE_APPLICATION_CREDENTIALS=serviceAccount.json` y luego `npm run seed`. Ese archivo es una llave privada: nunca se sube, nunca se pega en el chat, y se borra al terminar.
 
 ## 5. Firebase, GitHub y Jira

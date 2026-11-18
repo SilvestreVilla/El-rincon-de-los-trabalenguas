@@ -65,7 +65,7 @@ describe('trabalenguas (HU-04, HU-05)', () => {
     await assertFails(getDocs(collection(visitante(), 'trabalenguas')));
   });
 
-  test('el cliente no puede escribir trabalenguas en el Sprint 1', async () => {
+  test('un usuario normal no puede escribir trabalenguas', async () => {
     await assertFails(setDoc(doc(ana(), 'trabalenguas/nuevo'), { titulo: 'X', estado: 'aprobado' }));
   });
 });
@@ -362,5 +362,151 @@ describe('progreso: etapas de la ruta (HU-21)', () => {
 
   test('nadie completa etapas en el progreso de otra persona', async () => {
     await assertFails(setDoc(doc(beto(), 'progreso/ana_t1'), { ...base, etapas: { lee: true } }, { merge: true }));
+  });
+});
+
+describe('validación del editor (HU-13)', () => {
+  const ENVIO = {
+    autorId: 'ana',
+    autorNombre: 'Ana López',
+    titulo: 'Riesgos rápidos',
+    texto: 'Raúl registra riesgos raros en el registro de riesgos.',
+    concepto: 'Registro de riesgos',
+    definicion: 'Documento donde se anotan los riesgos identificados, su análisis y la respuesta planeada.',
+    area: 'Riesgos',
+    dificultad: 'Medio',
+    estado: 'pendiente',
+  };
+
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, 'usuarios/mod'), { email: 'mod@editorial.com', rol: 'moderador' });
+      await setDoc(doc(db, 'usuarios/ana'), { email: 'ana@editorial.com', rol: 'usuario', enviosPendientes: 2, ultimoEnvio: 'e2' });
+      await setDoc(doc(db, 'envios/e1'), { ...ENVIO, creado: new Date() });
+      await setDoc(doc(db, 'envios/e2'), { ...ENVIO, titulo: 'Otro', creado: new Date() });
+    });
+  });
+
+  const mod = () => env.authenticatedContext('mod', { email: 'mod@editorial.com' }).firestore();
+
+  const publicacion = (cambios = {}) => {
+    const { autorId, estado, ...resto } = ENVIO;
+    return { ...resto, estado: 'aprobado', creado: serverTimestamp(), fuente: 'PMBOK',
+      ejemplos: ['Antes de la mudanza anotas qué podría salir mal y qué harías.'], ...cambios };
+  };
+
+  /** Como lo hace moderar.js: publica, marca el envío y baja el contador del autor en un batch. */
+  function aprobar(db, id = 'e1', datos = publicacion(), opciones = {}) {
+    const lote = writeBatch(db);
+    if (!opciones.sinPublicar) lote.set(doc(db, 'trabalenguas', id), datos);
+    lote.update(doc(db, 'envios', id), { estado: 'aprobado', revisado: serverTimestamp(), ...(opciones.envio ?? {}) });
+    if (!opciones.sinContador) lote.update(doc(db, 'usuarios', 'ana'), { enviosPendientes: increment(-1), ultimaRevision: id });
+    return lote.commit();
+  }
+
+  function rechazar(db, motivo, id = 'e1', opciones = {}) {
+    const lote = writeBatch(db);
+    lote.update(doc(db, 'envios', id), { estado: 'rechazado', motivo, revisado: serverTimestamp() });
+    if (!opciones.sinContador) lote.update(doc(db, 'usuarios', 'ana'), { enviosPendientes: increment(-1), ultimaRevision: id });
+    return lote.commit();
+  }
+
+  const leerSinReglas = (ruta) => env.withSecurityRulesDisabled(async (ctx) => (await getDoc(doc(ctx.firestore(), ruta))).data());
+
+  test('el moderador ve los envíos pendientes de todos', async () => {
+    const pendientes = await assertSucceeds(getDocs(query(collection(mod(), 'envios'), where('estado', '==', 'pendiente'))));
+    if (pendientes.size !== 2) throw new Error('el moderador debía ver los 2 envíos pendientes');
+  });
+
+  test('un usuario normal no puede ver la cola de moderación', async () => {
+    await assertFails(getDocs(query(collection(ana(), 'envios'), where('estado', '==', 'pendiente'))));
+    await assertFails(getDocs(query(collection(beto(), 'envios'), where('estado', '==', 'pendiente'))));
+    await assertFails(getDocs(query(collection(visitante(), 'envios'), where('estado', '==', 'pendiente'))));
+  });
+
+  test('aprobar publica el trabalenguas en el catálogo y baja el contador del autor', async () => {
+    await assertSucceeds(aprobar(mod()));
+    await assertSucceeds(getDoc(doc(visitante(), 'trabalenguas/e1')));
+    const usuario = await leerSinReglas('usuarios/ana');
+    if (usuario.enviosPendientes !== 1) throw new Error('el contador debía bajar a 1');
+    const envio = (await getDoc(doc(ana(), 'envios/e1'))).data();
+    if (envio.estado !== 'aprobado') throw new Error('el autor debía ver su envío aprobado');
+  });
+
+  test('el moderador puede corregir el texto antes de publicar; publicar sin ejemplos ni fuente también vale', async () => {
+    const { ejemplos, fuente, ...sinExtras } = publicacion({ definicion: 'Lista de riesgos con su análisis y su respuesta.' });
+    await assertSucceeds(aprobar(mod(), 'e1', sinExtras));
+  });
+
+  test('rechazar exige un motivo y baja el contador del autor', async () => {
+    await assertFails(rechazar(mod(), ''));
+    await assertFails(rechazar(mod(), 'No'));
+    await assertSucceeds(rechazar(mod(), 'La definición no corresponde al concepto.'));
+    const usuario = await leerSinReglas('usuarios/ana');
+    if (usuario.enviosPendientes !== 1) throw new Error('el contador debía bajar a 1');
+  });
+
+  test('con el contador abajo, el autor puede volver a proponer', async () => {
+    await env.withSecurityRulesDisabled((ctx) => updateDoc(doc(ctx.firestore(), 'usuarios/ana'), { enviosPendientes: 5 }));
+    await assertSucceeds(rechazar(mod(), 'La definición no corresponde al concepto.'));
+    const lote = writeBatch(ana());
+    const ref = doc(collection(ana(), 'envios'));
+    lote.set(ref, { ...ENVIO, creado: serverTimestamp() });
+    lote.update(doc(ana(), 'usuarios', 'ana'), { enviosPendientes: increment(1), ultimoEnvio: ref.id });
+    await assertSucceeds(lote.commit());
+  });
+
+  test('aprobar sin publicar, o publicar sin aprobar, se rechaza', async () => {
+    await assertFails(aprobar(mod(), 'e1', publicacion(), { sinPublicar: true }));
+    await assertFails(setDoc(doc(mod(), 'trabalenguas/e1'), publicacion()));
+  });
+
+  test('aprobar o rechazar sin bajar el contador del autor se rechaza', async () => {
+    await assertFails(aprobar(mod(), 'e1', publicacion(), { sinContador: true }));
+    await assertFails(rechazar(mod(), 'La definición no corresponde al concepto.', 'e1', { sinContador: true }));
+  });
+
+  test('un envío ya revisado no se vuelve a revisar', async () => {
+    await assertSucceeds(rechazar(mod(), 'La definición no corresponde al concepto.'));
+    await assertFails(aprobar(mod()));
+  });
+
+  test('aprobar no lleva motivo', async () => {
+    await assertFails(aprobar(mod(), 'e1', publicacion(), { envio: { motivo: 'Muy bien' } }));
+  });
+
+  test('la publicación valida sus campos', async () => {
+    await assertFails(aprobar(mod(), 'e1', publicacion({ texto: 'Muy corto' })));
+    await assertFails(aprobar(mod(), 'e1', publicacion({ estado: 'pendiente' })));
+    await assertFails(aprobar(mod(), 'e1', publicacion({ area: 'Marketing' })));
+    await assertFails(aprobar(mod(), 'e1', publicacion({ fuente: 'Wikipedia' })));
+    await assertFails(aprobar(mod(), 'e1', publicacion({ ejemplos: ['corto'] })));
+    await assertFails(aprobar(mod(), 'e1', publicacion({ ejemplos: [] })));
+    await assertFails(aprobar(mod(), 'e1', publicacion({ autorId: 'ana' })));
+  });
+
+  test('no se publica un trabalenguas que no viene de un envío', async () => {
+    await assertFails(setDoc(doc(mod(), 'trabalenguas/inventado'), publicacion()));
+  });
+
+  test('un usuario normal no puede aprobar, rechazar ni publicar, ni siquiera su propio envío', async () => {
+    await assertFails(aprobar(ana()));
+    await assertFails(rechazar(ana(), 'Me arrepentí de enviarlo.'));
+    await assertFails(aprobar(beto()));
+  });
+
+  test('nadie se asigna el rol de moderador', async () => {
+    await assertFails(updateDoc(doc(ana(), 'usuarios/ana'), { rol: 'moderador' }));
+    await assertFails(updateDoc(doc(mod(), 'usuarios/ana'), { rol: 'moderador' }));
+  });
+
+  test('el moderador no puede bajar contadores sin revisar un envío', async () => {
+    await assertFails(updateDoc(doc(mod(), 'usuarios/ana'), { enviosPendientes: increment(-1), ultimaRevision: 'e1' }));
+  });
+
+  test('el moderador no puede cambiar ni borrar trabalenguas publicados', async () => {
+    await assertFails(updateDoc(doc(mod(), 'trabalenguas/aprobado1'), { titulo: 'Otro' }));
+    await assertFails(deleteDoc(doc(mod(), 'trabalenguas/aprobado1')));
   });
 });

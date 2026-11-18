@@ -23,6 +23,8 @@ if (!usuario) {
     console.error('No se pudo leer el perfil', e);
   }
   $('perfil-rol').textContent = rol.charAt(0).toUpperCase() + rol.slice(1);
+  // HU-13: el editor de contenido entra a la moderación desde su perfil.
+  if (rol === 'moderador') $('ir-moderar').classList.remove('oculto');
   $('perfil-desde').textContent = desde.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
 
   $('perfil-cargando').classList.add('oculto');
