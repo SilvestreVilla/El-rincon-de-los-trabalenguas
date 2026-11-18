@@ -2,29 +2,39 @@
 
 > Estado vivo del proyecto. Cambia cada Sprint: actualízalo en la Review y en la planeación.
 > El contexto estable (tecnología, modelo de datos, flujo, Definition of Done) está en `CLAUDE.md`.
-> Actualizado: 17 de noviembre de 2026 (Sprint 4: HU-13 y HU-18 en pull request). Las secciones 1 a 3 siguen con el corte del 30 de octubre salvo lo marcado como «17 nov»; falta la actualización completa del cierre.
+> Actualizado: 17 de noviembre de 2026 (Sprint 4 · Cierre: Jira ordenado, HU-13 y HU-18 integradas y en revisión).
 
 ## 1. Estado de las historias
 
-| Historia | Pts | Sprint | Estado |
-|---|---|---|---|
-| HU-01 Registro | 3 | 1 | En `main` (PR #1) · en staging |
-| HU-02 Sesión | 2 | 1 | En `main` (PR #1) · en staging |
-| HU-03 Recuperar contraseña | 1 | 1 | En `main` (PR #1) · en staging |
-| HU-04 Catálogo | 5 | 1 | En `main` (PR #1) · en staging · semilla de 30 cargada (sin validar por el editor) |
-| HU-05 Detalle | 3 | 1 | En `main` (PR #1) · en staging |
-| HU-06 Búsqueda y filtros | 5 | 1 | En `main` (PR #2, diegoooolpzz06) · en staging, probada |
-| HU-07 Favoritos | 3 | 1 | En `main` (PR #3, daevev) · reglas publicadas · probada en staging |
-| HU-09 Temporizador | 5 | 1 | En `main` (PR #4, daevev) · reglas publicadas · probada en staging |
-| HU-08 Dominado | 2 | 2 | En `main` (PR #7) · en staging (30 oct) |
-| HU-10 Compartir | 2 | 2 | En `main` (PR #5, daevev) · en staging (30 oct) |
-| HU-11 Rompehielos | 3 | 2 | En `main` (PR #8, código de Alexzzen24) · en staging (30 oct) · falta probar la lectura a 3 m |
-| HU-12 Proponer | 5 | 2 | En `main` (PR #9) · en staging (30 oct) · **no funciona en staging hasta publicar las reglas** (problema 1) |
-| HU-15 Mis envíos | 2 | 2 | En `main` (PR #11, reemplaza al #10) · en staging (30 oct) · **igual que HU-12, necesita las reglas publicadas** |
-| HU-13 Validación del editor | 3 | 4 | 17 nov: PR #29 abierto · falta `npm run test:reglas`, publicar reglas y staging |
-| HU-18 Privacidad y eliminar cuenta | 3 | 4 | 17 nov: PR abierto, apilado sobre HU-13 (integrar después de #29) · mismos pendientes · el aviso tiene 2 [COMPLETAR] |
+Corte del 17 de noviembre. «Finalizado» en Jira = integrada a `main`, desplegada en staging y verificada ahí (recorrido completo con cuenta real el 6 nov). **Los puntos 3 (4 navegadores y celular) y 8 (validación del editor) de la DoD se cierran para todo el producto antes de liberar la v1.0** (problemas 3 y 5); si alguno falla, la historia afectada se reabre.
 
-Jira (30 oct): HU-01 a HU-07 y HU-09 están en «Sprint 1 · Base» y en «En revisión». HU-08, HU-10, HU-11, HU-12 y HU-15 están en «Sprint 2 · Práctica» (aún sin iniciar), todas en «En revisión». Ninguna tiene responsable salvo HU-06.
+| Historia | Pts | Sprint | Estado (17 nov) |
+|---|---|---|---|
+| HU-01 Registro | 3 | 1 | Finalizado · PR #1 |
+| HU-02 Sesión | 2 | 1 | Finalizado · PR #1 |
+| HU-03 Recuperar contraseña | 1 | 1 | Finalizado · PR #1 |
+| HU-04 Catálogo | 5 | 1 | Finalizado · PR #1 · semilla de 40 cargada en producción |
+| HU-05 Detalle | 3 | 1 | Finalizado · PR #1 |
+| HU-06 Búsqueda y filtros | 5 | 1 | Finalizado · PR #2 |
+| HU-07 Favoritos | 3 | 1 | Finalizado · PR #3 |
+| HU-09 Temporizador | 5 | 1 | Finalizado · PR #4 |
+| HU-08 Dominado | 2 | 2 | Finalizado · PR #7 · desde HU-21 el dominado es por logro |
+| HU-10 Compartir | 2 | 2 | Finalizado · PR #5 |
+| HU-11 Rompehielos | 3 | 2 | Finalizado · PR #8 · falta probar la lectura a 3 m |
+| HU-12 Proponer | 5 | 2 | Finalizado · PR #9 |
+| HU-15 Mis envíos | 2 | 2 | Finalizado · PR #11 |
+| HU-14 Preguntas del trabalenguas | 5 | 3 | Finalizado |
+| HU-21 Ruta de aprendizaje | 3 | 3 | Finalizado |
+| HU-22 Arma el trabalenguas | 3 | 3 | Finalizado |
+| HU-25 Memorama | 3 | 3 | Finalizado · PR #26 corrige la palabra oculta |
+| HU-26 Fuente y filtro por fuente | 2 | 4 | Finalizado |
+| HU-27 Diez conceptos nuevos (40) | 3 | 4 | Finalizado · semilla cargada |
+| HU-13 Validación del editor | 3 | 4 | **En revisión** · PR #29 integrado · falta `npm run test:reglas`, publicar reglas, probar en staging |
+| HU-18 Privacidad y eliminar cuenta | 3 | 4 | **En revisión** · PR #30 integrado · mismos pendientes · el aviso tiene 2 [COMPLETAR] |
+| HU-23 Karaoke · HU-24 Dilo en voz alta | — | — | Finalizado como **descartadas** (2 nov), sin Sprint |
+| HU-16, HU-17, HU-19, HU-20 | — | Reserva | Por hacer · fuera de la v1.0 |
+
+Responsables en Jira: asignados al azar entre los 5 integrantes el 17 de noviembre (todos son desarrolladores; Silvestre además es Scrum Master).
 
 Revisiones en GitHub: la Ing. Neira indicó el 30 de octubre que no se exigen; la evidencia es que el avance se vea en staging.
 
@@ -33,7 +43,7 @@ Revisiones en GitHub: la Ing. Neira indicó el 30 de octubre que no se exigen; l
 1. **Publicar las reglas en producción.** El canal de staging usa la misma base de datos que producción, así que HU-12 y HU-15 (colección `envios`) solo funcionan en staging cuando se publiquen las reglas: `npx firebase deploy --only firestore:rules`. También incluye la validación `dominado is bool` de HU-08.
    - **Nuevo (2 nov):** volver a correr la semilla en producción (`set GOOGLE_APPLICATION_CREDENTIALS=serviceAccount.json` y `npm run seed`) para que los 30 trabalenguas tengan `ejemplos`. Sin ellos, las preguntas de HU-14 funcionan, pero con 4 preguntas en lugar de 5. La semilla reescribe los 30 documentos (mismo id), no duplica nada.
 2. **Proteger `main`** (opcional ahora que no se exigen revisiones): Settings → Branches → regla para `main` con *Require a pull request*, sin aprobaciones. Evita que se suba directo, como pasó con HU-08 y el zip de HU-11.
-3. Probar en 4 navegadores y en celular las páginas del Sprint 2 (DoD 3 y 4).
+3. Probar en 4 navegadores y en celular todo el producto antes de liberar la v1.0 (DoD 3 y 4).
 4. **Java 11+ en la laptop del equipo.** `npm run test:reglas` ya se corrió (50 de 50 en verde el 30 de octubre, con HU-12 y HU-15), pero con un JDK 21 portátil temporal. Hay que instalar un JDK 21 (por ejemplo, Eclipse Temurin) para que cualquiera pueda correrlo.
 5. El editor no ha validado los 40 trabalenguas (DoD 8). El aviso de privacidad quedó redactado en HU-18 (17 nov), pero le faltan el nombre de la editorial y el correo de contacto. [COMPLETAR]
 6. Producción (`rincon-de-los-trabalenguas.web.app`) quizá ya tenga historias del Sprint 2 sin aceptar. A producción solo debe ir lo aceptado en la Review.
@@ -44,28 +54,30 @@ Revisiones en GitHub: la Ing. Neira indicó el 30 de octubre que no se exigen; l
 
 ## 3. Replanificación
 
-Aplicada en Jira el 30 de octubre (Sprints y etiquetas). Faltan las fechas y el objetivo del Sprint 2, y que las descripciones de HU-12 y HU-15 dejen de decir «Sprint planeado: Sprint 3».
+Sprints en Jira (tablero 1), ordenados el 17 de noviembre:
 
-Velocidad real del Sprint 1: 27 pts (factor de dedicación 27 ÷ 15 = 180 %). [COMPLETAR qué representa el 15: ¿días-persona disponibles?] No es representativa: el Sprint 1 se hizo con mucha ayuda de IA y los puntos son relativos. Se planea con **14 pts por Sprint**, siguiendo a Kniberg («el tiempo que hizo ayer» aplicado con sentido común).
+| Sprint | Id | Fechas | Historias | Pts terminados | Estado |
+|---|---|---|---|---|---|
+| 1 · Base | 2 | 23 al 30 oct | HU-01 a HU-07, HU-09 | 27 (14 planeados) | Cerrado |
+| 2 · Práctica | 1 | 31 oct al 6 nov | HU-08, HU-10, HU-11, HU-12, HU-15 | 14 | Cerrado |
+| 3 · Aprender | 35 | 2 al 13 nov | HU-14, HU-21, HU-22, HU-25 | 14 | Cerrado |
+| 4 · Cierre | 36 | 14 al 20 nov | HU-13, HU-18, HU-26, HU-27 | 5 de 11 (HU-13 y HU-18 en revisión) | Activo |
 
-| Sprint | Fechas [SUPUESTO] | Historias | Pts |
-|---|---|---|---|
-| 1 · Base | 23 al 30 oct | HU-01 a HU-07, HU-09 | 27 real (14 planeados) |
-| 2 · Práctica | 31 oct al 6 nov | HU-08, HU-10, HU-11, HU-12, HU-15 | 14 |
-| 3 · Aprender jugando | 7 al 13 nov | HU-21 Ruta (3), HU-22 Arma (3), HU-14 Preguntas (5), HU-25 Memorama (3) | 14 |
-| 4 · Liberar | 14 al 20 nov | HU-13 Editor (3), HU-18 Privacidad (3), y si alcanza HU-17 Niveles (3) + liberación (Lighthouse, navegadores, manual) | 6 a 9 |
-| Fuera de la v1.0 | — | HU-16 (5), HU-19 (5) · HU-20 (Won't, 13) para la v2.0 · HU-23 y HU-24 descartadas | — |
+- El Sprint 3 empezó el 2 de noviembre, junto con el final del Sprint 2: la replaneación de esa Review se programó de inmediato.
+- Los Sprints 2 y 3 se iniciaron y cerraron en Jira el 17 de noviembre con sus fechas reales, para que el informe de velocidad las refleje.
+- El objetivo de cada Sprint quedó escrito en Jira.
+
+Velocidad: 27 → 14 → 14 → (11 si se aceptan HU-13 y HU-18). El Sprint 1 no es representativo: se hizo con mucha ayuda de IA y los puntos son relativos. Desde el Sprint 2 se planeó con **14 pts por Sprint**, siguiendo a Kniberg («el tiempo que hizo ayer» aplicado con sentido común). [COMPLETAR qué representa el 15 del factor de dedicación del Sprint 1: ¿días-persona disponibles?]
+
+**Pendiente en Jira:**
+1. Pasar HU-13 y HU-18 a «Finalizado» cuando pasen `npm run test:reglas` y la prueba en staging.
+2. Cerrar el Sprint 4 en la Review final (20 nov).
+3. Exportar el burndown y el informe de velocidad (Informes del tablero) para el documento de cierre.
+4. Registrar las horas por integrante. [COMPLETAR]
 
 **Replaneación del 2 de noviembre («Aprender jugando»).** En la Review, la Dra. Neira observó que todavía no se veía que el usuario aprenda los trabalenguas y sugirió más juegos. El PO agregó HU-21 a HU-25 (SCRUM-25 a SCRUM-29, etiqueta `Review-Dra`) y reordenó el backlog: cada trabalenguas tiene una ruta de 4 etapas (Lee, Ordena, Completa, Dilo) y queda dominado al completarlas. HU-14 genera sola la palabra oculta y los distractores, así que baja de 8 a 5 pts y deja de depender de HU-13, que baja de 5 a 3 y pasa al Sprint 4. HU-16, HU-17, HU-19 y HU-25 quedan fuera de la v1.0 (etiqueta `Fuera-v1.0`). Las estimaciones nuevas son propuestas: el equipo las confirma con planning poker en el refinamiento.
 
 **Ajuste del mismo 2 de noviembre (ruta de 3 etapas).** HU-21 a HU-24 se programaron e integraron (PR #17 a #21), pero al probarlos el PO decidió que el karaoke (HU-23) y «Dilo en voz alta» (HU-24) no aportaban al objetivo de *entender* los conceptos: se descartan y se retiran del código. Entra el Memorama (HU-25) como etapa 3, y HU-14 cambia a 5 preguntas sobre el mismo trabalenguas (frase, concepto, definición y dos de vida diaria), para lo que la semilla gana 2 ejemplos cotidianos por concepto. La ruta queda Ordena → Completa → Relaciona. Esto libera 8 pts del Sprint 4; el PO decide si entra HU-17 (Niveles) o se deja holgura para la liberación. [COMPLETAR decisión del PO]
-
-**Pendiente en Jira:**
-1. Cerrar el Sprint 1 después de la Review e iniciar el Sprint 2 con su objetivo y fechas.
-2. Configurar los Sprints 3 y 4.
-3. Asignar responsable a cada historia.
-4. Pasar a «Finalizado» solo lo que cumpla la DoD.
-5. Actualizar la tabla de horas y el burndown.
 
 ## 4. Decisiones de diseño
 
