@@ -109,8 +109,10 @@ describe('usuarios (HU-01, HU-02)', () => {
     await assertFails(updateDoc(doc(ana(), 'usuarios/ana'), { rol: 'moderador' }));
   });
 
-  test('borrar la cuenta desde el cliente queda cerrado hasta el Sprint 4', async () => {
-    await assertFails(deleteDoc(doc(ana(), 'usuarios/ana')));
+  test('cada quien borra solo su propio documento (HU-18)', async () => {
+    await assertFails(deleteDoc(doc(beto(), 'usuarios/ana')));
+    await assertFails(deleteDoc(doc(visitante(), 'usuarios/ana')));
+    await assertSucceeds(deleteDoc(doc(ana(), 'usuarios/ana')));
   });
 });
 
@@ -292,10 +294,11 @@ describe('envíos (HU-12)', () => {
     await assertFails(getDoc(doc(visitante(), 'envios/e1')));
   });
 
-  test('un envío no se puede cambiar ni borrar desde el cliente', async () => {
+  test('el autor no puede cambiar su envío, y solo él lo borra (al eliminar su cuenta, HU-18)', async () => {
     await env.withSecurityRulesDisabled((ctx) => setDoc(doc(ctx.firestore(), 'envios/e1'), { ...envioValido(), creado: new Date() }));
     await assertFails(updateDoc(doc(ana(), 'envios/e1'), { estado: 'aprobado' }));
-    await assertFails(deleteDoc(doc(ana(), 'envios/e1')));
+    await assertFails(deleteDoc(doc(beto(), 'envios/e1')));
+    await assertSucceeds(deleteDoc(doc(ana(), 'envios/e1')));
   });
 
   test('los envíos no aparecen en el catálogo', async () => {
@@ -508,5 +511,74 @@ describe('validación del editor (HU-13)', () => {
   test('el moderador no puede cambiar ni borrar trabalenguas publicados', async () => {
     await assertFails(updateDoc(doc(mod(), 'trabalenguas/aprobado1'), { titulo: 'Otro' }));
     await assertFails(deleteDoc(doc(mod(), 'trabalenguas/aprobado1')));
+  });
+});
+
+describe('eliminar cuenta (HU-18)', () => {
+  const ENVIO = {
+    autorId: 'ana', autorNombre: 'Ana López', titulo: 'T', texto: 'Texto de prueba con más de veinte caracteres.',
+    concepto: 'C', definicion: 'D', area: 'Scrum', dificultad: 'Fácil', creado: new Date(),
+  };
+
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, 'progreso/ana_aprobado1'), { usuarioId: 'ana', trabalenguasId: 'aprobado1', dominado: true });
+      await setDoc(doc(db, 'progreso/beto_aprobado1'), { usuarioId: 'beto', trabalenguasId: 'aprobado1', esFavorito: true });
+      await setDoc(doc(db, 'envios/pend'), { ...ENVIO, estado: 'pendiente' });
+      await setDoc(doc(db, 'envios/publ'), { ...ENVIO, estado: 'aprobado' });
+      await setDoc(doc(db, 'trabalenguas/publ'), { titulo: 'T', autorNombre: 'Ana López', estado: 'aprobado' });
+      await setDoc(doc(db, 'envios/deBeto'), { ...ENVIO, autorId: 'beto', estado: 'aprobado' });
+      await setDoc(doc(db, 'trabalenguas/deBeto'), { titulo: 'B', autorNombre: 'Beto', estado: 'aprobado' });
+    });
+  });
+
+  test('el usuario borra su progreso, pero no el de otra persona', async () => {
+    await assertSucceeds(deleteDoc(doc(ana(), 'progreso/ana_aprobado1')));
+    await assertFails(deleteDoc(doc(ana(), 'progreso/beto_aprobado1')));
+    await assertFails(deleteDoc(doc(visitante(), 'progreso/beto_aprobado1')));
+  });
+
+  test('un envío pendiente se borra directamente', async () => {
+    await assertSucceeds(deleteDoc(doc(ana(), 'envios/pend')));
+  });
+
+  test('un envío publicado no se borra mientras su trabalenguas lleve el nombre del autor', async () => {
+    await assertFails(deleteDoc(doc(ana(), 'envios/publ')));
+  });
+
+  test('la aportación queda como «Anónimo» y el envío se borra en el mismo batch', async () => {
+    const lote = writeBatch(ana());
+    lote.update(doc(ana(), 'trabalenguas/publ'), { autorNombre: 'Anónimo' });
+    lote.delete(doc(ana(), 'envios/publ'));
+    await assertSucceeds(lote.commit());
+    const t = (await getDoc(doc(visitante(), 'trabalenguas/publ'))).data();
+    if (t.autorNombre !== 'Anónimo') throw new Error('la aportación debía quedar como Anónimo');
+  });
+
+  test('solo se puede poner «Anónimo» y solo en las aportaciones propias', async () => {
+    await assertFails(updateDoc(doc(ana(), 'trabalenguas/publ'), { autorNombre: 'Otra persona' }));
+    await assertFails(updateDoc(doc(ana(), 'trabalenguas/publ'), { autorNombre: 'Anónimo', titulo: 'Cambiado' }));
+    await assertFails(updateDoc(doc(ana(), 'trabalenguas/deBeto'), { autorNombre: 'Anónimo' }));
+    await assertFails(updateDoc(doc(ana(), 'trabalenguas/aprobado1'), { autorNombre: 'Anónimo' }));
+    await assertFails(updateDoc(doc(visitante(), 'trabalenguas/publ'), { autorNombre: 'Anónimo' }));
+  });
+
+  test('nadie borra envíos ni trabalenguas de otra persona', async () => {
+    await assertFails(deleteDoc(doc(ana(), 'envios/deBeto')));
+    await assertFails(deleteDoc(doc(ana(), 'trabalenguas/publ')));
+  });
+
+  test('flujo completo: progreso, envíos, aportación anónima y documento del usuario', async () => {
+    const db = ana();
+    await assertSucceeds(deleteDoc(doc(db, 'progreso/ana_aprobado1')));
+    const lote = writeBatch(db);
+    lote.delete(doc(db, 'envios/pend'));
+    lote.update(doc(db, 'trabalenguas/publ'), { autorNombre: 'Anónimo' });
+    lote.delete(doc(db, 'envios/publ'));
+    await assertSucceeds(lote.commit());
+    await assertSucceeds(deleteDoc(doc(db, 'usuarios/ana')));
+    const quedan = await env.withSecurityRulesDisabled(async (ctx) => (await getDocs(query(collection(ctx.firestore(), 'envios'), where('autorId', '==', 'ana')))).size);
+    if (quedan !== 0) throw new Error('no debían quedar envíos de ana');
   });
 });

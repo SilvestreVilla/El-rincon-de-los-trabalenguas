@@ -246,3 +246,10 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .moderar-form { display: flex; flex-direction: column; gap: 14px; padding-top: 8px; }
 .boton-peligro { color: var(--error); border-color: var(--error); }
 .boton-peligro:hover { background: var(--error-fondo); color: var(--error); }
+
+/* ---------- Eliminar cuenta (HU-18) ---------- */
+.zona-peligro { border-color: #efc2bc; }
+.zona-peligro h2 { font-size: 1.15rem; color: var(--error); }
+.zona-peligro form { display: flex; flex-direction: column; gap: 14px; }
+.boton-peligro-lleno { background: var(--error); border-color: var(--error); color: #fff; }
+.boton-peligro-lleno:hover { background: #7f1f14; border-color: #7f1f14; color: #fff; }

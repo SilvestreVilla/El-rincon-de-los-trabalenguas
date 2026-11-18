@@ -80,8 +80,8 @@ service cloud.firestore {
           && get(rutaEnvio(request.resource.data.ultimaRevision)).data.estado == 'pendiente'
           && getAfter(rutaEnvio(request.resource.data.ultimaRevision)).data.estado in ['aprobado', 'rechazado']);
 
-      // La eliminación de cuenta llega en el Sprint 4 (HU-18).
-      allow delete: if false;
+      // HU-18: el dueño borra su documento al eliminar su cuenta (después de su progreso y sus envíos).
+      allow delete: if esDueno(uid);
     }
 
     // ---------- trabalenguas/{id} ----------
@@ -118,7 +118,16 @@ service cloud.firestore {
         && get(rutaEnvio(id)).data.estado == 'pendiente'
         && getAfter(rutaEnvio(id)).data.estado == 'aprobado';
 
-      allow update, delete: if false;
+      // HU-18: al eliminar su cuenta, el autor de un envío aprobado deja su aportación como «Anónimo».
+      // Solo puede cambiar `autorNombre`, solo a «Anónimo», y solo si el envío con el mismo id es suyo.
+      allow update: if autenticado()
+        && exists(rutaEnvio(id))
+        && get(rutaEnvio(id)).data.autorId == request.auth.uid
+        && get(rutaEnvio(id)).data.estado == 'aprobado'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['autorNombre'])
+        && request.resource.data.autorNombre == 'Anónimo';
+
+      allow delete: if false;
     }
 
     // ---------- progreso/{uid}_{trabalenguasId} ----------
@@ -154,7 +163,8 @@ service cloud.firestore {
         && (!('ultimaPractica' in request.resource.data) || request.resource.data.ultimaPractica is timestamp)
         && etapasValidas(request.resource.data);
 
-      allow delete: if false;
+      // HU-18: al eliminar la cuenta, el usuario borra todo su progreso.
+      allow delete: if autenticado() && docId.matches(request.auth.uid + '_.*');
     }
 
     // ---------- envios/{envioId} ----------
@@ -201,7 +211,14 @@ service cloud.firestore {
         && getAfter(rutaUsuario(resource.data.autorId)).data.get('enviosPendientes', 0)
           == get(rutaUsuario(resource.data.autorId)).data.get('enviosPendientes', 0) - 1;
 
-      allow delete: if false;
+      // HU-18: al eliminar su cuenta, el autor borra sus envíos (con su nombre y sus textos).
+      // Si uno ya está publicado, primero (o en el mismo batch) su trabalenguas debe quedar como «Anónimo».
+      allow delete: if autenticado()
+        && resource.data.autorId == request.auth.uid
+        && (resource.data.estado != 'aprobado'
+          || !existsAfter(rutaTrabalenguas(envioId))
+          || getAfter(rutaTrabalenguas(envioId)).data.autorNombre == 'Anónimo'
+          || getAfter(rutaTrabalenguas(envioId)).data.estado != 'aprobado');
     }
 
     // Cualquier otra colección queda cerrada.
