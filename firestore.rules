@@ -2,8 +2,9 @@ rules_version = '2';
 
 // Reglas de seguridad de El Rincón de los Trabalenguas.
 // Sprint 1: usuarios (HU-01, HU-02) y lectura del catálogo aprobado (HU-04, HU-05).
-// Sprint 2: los usuarios proponen trabalenguas en `envios` (HU-12). El cliente sigue sin escribir
-// en `trabalenguas`: la semilla se carga con scripts/seed.js (Admin SDK) y la publicación llega con HU-13.
+// Sprint 2: los usuarios proponen trabalenguas en `envios` (HU-12).
+// Sprint 4: el editor de contenido (rol «moderador») aprueba o rechaza envíos (HU-13). Aprobar publica
+// el envío en `trabalenguas` con el mismo id. La semilla se sigue cargando con scripts/seed.js (Admin SDK).
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -22,6 +23,17 @@ service cloud.firestore {
 
     function rutaEnvio(envioId) {
       return /databases/$(database)/documents/envios/$(envioId);
+    }
+
+    function rutaTrabalenguas(id) {
+      return /databases/$(database)/documents/trabalenguas/$(id);
+    }
+
+    // HU-13: el rol «moderador» solo se asigna desde la consola de Firebase (nadie se lo pone a sí mismo).
+    function esModerador() {
+      return autenticado()
+        && exists(rutaUsuario(request.auth.uid))
+        && get(rutaUsuario(request.auth.uid)).data.get('rol', '') == 'moderador';
     }
 
     // HU-12: máximo de envíos pendientes por usuario.
@@ -47,7 +59,7 @@ service cloud.firestore {
       // Nadie cambia su propio rol ni su correo desde el cliente.
       // HU-12: lo único que el dueño puede cambiar es su contador de envíos pendientes, y solo
       // subiéndolo de 1 en 1 (hasta 5) en la misma escritura que crea el envío `ultimoEnvio`.
-      allow update: if esDueno(uid)
+      allow update: if (esDueno(uid)
         && (request.resource.data.diff(resource.data).affectedKeys().hasOnly([])
           || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['enviosPendientes', 'ultimoEnvio'])
             && request.resource.data.enviosPendientes == resource.data.get('enviosPendientes', 0) + 1
@@ -55,7 +67,18 @@ service cloud.firestore {
             && request.resource.data.ultimoEnvio is string
             && !exists(rutaEnvio(request.resource.data.ultimoEnvio))
             && existsAfter(rutaEnvio(request.resource.data.ultimoEnvio))
-            && getAfter(rutaEnvio(request.resource.data.ultimoEnvio)).data.autorId == uid));
+            && getAfter(rutaEnvio(request.resource.data.ultimoEnvio)).data.autorId == uid)))
+        // HU-13: el moderador baja en 1 el contador del autor en la misma escritura en la que aprueba
+        // o rechaza uno de sus envíos pendientes (`ultimaRevision` apunta a ese envío).
+        || (esModerador()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['enviosPendientes', 'ultimaRevision'])
+          && request.resource.data.enviosPendientes == resource.data.get('enviosPendientes', 0) - 1
+          && request.resource.data.enviosPendientes >= 0
+          && request.resource.data.ultimaRevision is string
+          && exists(rutaEnvio(request.resource.data.ultimaRevision))
+          && get(rutaEnvio(request.resource.data.ultimaRevision)).data.autorId == uid
+          && get(rutaEnvio(request.resource.data.ultimaRevision)).data.estado == 'pendiente'
+          && getAfter(rutaEnvio(request.resource.data.ultimaRevision)).data.estado in ['aprobado', 'rechazado']);
 
       // La eliminación de cuenta llega en el Sprint 4 (HU-18).
       allow delete: if false;
@@ -64,9 +87,38 @@ service cloud.firestore {
     // ---------- trabalenguas/{id} ----------
     // HU-04 y HU-05: cualquiera, con o sin sesión, lee solo los aprobados.
     // Un trabalenguas pendiente o rechazado se comporta como «no encontrado».
+    function ejemploValido(lista, i) {
+      return lista.size() <= i || (lista[i] is string && lista[i].size() >= 20 && lista[i].size() <= 160);
+    }
+
     match /trabalenguas/{id} {
       allow read: if resource.data.estado == 'aprobado';
-      allow write: if false;
+
+      // HU-13: el moderador publica un envío pendiente con el mismo id, en la misma escritura en la que
+      // marca el envío como aprobado. Puede corregir el texto, el concepto o la definición antes de publicar.
+      allow create: if esModerador()
+        && request.resource.data.keys().hasOnly(['titulo', 'texto', 'concepto', 'definicion', 'area', 'dificultad', 'autorNombre', 'estado', 'creado', 'fuente', 'ejemplos'])
+        && request.resource.data.keys().hasAll(['titulo', 'texto', 'concepto', 'definicion', 'area', 'dificultad', 'autorNombre', 'estado', 'creado'])
+        && request.resource.data.estado == 'aprobado'
+        && request.resource.data.creado == request.time
+        && request.resource.data.titulo is string && request.resource.data.titulo.size() >= 1 && request.resource.data.titulo.size() <= 80
+        && request.resource.data.texto is string && request.resource.data.texto.size() >= 20 && request.resource.data.texto.size() <= 500
+        && request.resource.data.concepto is string && request.resource.data.concepto.size() >= 1 && request.resource.data.concepto.size() <= 60
+        && request.resource.data.definicion is string && request.resource.data.definicion.size() >= 1 && request.resource.data.definicion.size() <= 200
+        && request.resource.data.autorNombre is string && request.resource.data.autorNombre.size() >= 1 && request.resource.data.autorNombre.size() <= 40
+        && request.resource.data.area in ['Scrum', 'Planeación', 'Riesgos', 'Calidad', 'Liderazgo']
+        && request.resource.data.dificultad in ['Fácil', 'Medio', 'Difícil']
+        && (!('fuente' in request.resource.data) || request.resource.data.fuente in ['Guía Scrum', 'PMBOK', 'Guía Scrum y PMBOK', 'Prácticas ágiles', 'Ingeniería de software'])
+        && (!('ejemplos' in request.resource.data) || (request.resource.data.ejemplos is list
+          && request.resource.data.ejemplos.size() >= 1 && request.resource.data.ejemplos.size() <= 3
+          && ejemploValido(request.resource.data.ejemplos, 0)
+          && ejemploValido(request.resource.data.ejemplos, 1)
+          && ejemploValido(request.resource.data.ejemplos, 2)))
+        && exists(rutaEnvio(id))
+        && get(rutaEnvio(id)).data.estado == 'pendiente'
+        && getAfter(rutaEnvio(id)).data.estado == 'aprobado';
+
+      allow update, delete: if false;
     }
 
     // ---------- progreso/{uid}_{trabalenguasId} ----------
@@ -111,7 +163,8 @@ service cloud.firestore {
     // así las reglas imponen el máximo de 5 sin tener que contar documentos.
     match /envios/{envioId} {
       // HU-15: cada autor lee solo sus envíos (las consultas deben filtrar por autorId).
-      allow read: if autenticado() && resource.data.autorId == request.auth.uid;
+      // HU-13: el moderador lee todos para revisarlos (la página de moderación filtra por estado).
+      allow read: if autenticado() && (resource.data.autorId == request.auth.uid || esModerador());
 
       allow create: if autenticado()
         && request.resource.data.keys().hasOnly(['autorId', 'autorNombre', 'titulo', 'texto', 'concepto', 'definicion', 'area', 'dificultad', 'estado', 'creado'])
@@ -131,8 +184,24 @@ service cloud.firestore {
         && getAfter(rutaUsuario(request.auth.uid)).data.get('enviosPendientes', 0) == get(rutaUsuario(request.auth.uid)).data.get('enviosPendientes', 0) + 1
         && getAfter(rutaUsuario(request.auth.uid)).data.get('ultimoEnvio', '') == envioId;
 
-      // Aprobar o rechazar (y bajar el contador) llega con HU-13.
-      allow update, delete: if false;
+      // HU-13: el moderador aprueba o rechaza un envío pendiente, una sola vez.
+      // - Rechazar exige un motivo (5 a 200 caracteres), que HU-15 le muestra al autor.
+      // - Aprobar exige publicar el trabalenguas con el mismo id en la misma escritura.
+      // - En ambos casos, el contador de pendientes del autor baja en 1 en la misma escritura.
+      allow update: if esModerador()
+        && resource.data.estado == 'pendiente'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'motivo', 'revisado'])
+        && request.resource.data.revisado == request.time
+        && ((request.resource.data.estado == 'rechazado'
+              && request.resource.data.motivo is string
+              && request.resource.data.motivo.size() >= 5 && request.resource.data.motivo.size() <= 200)
+          || (request.resource.data.estado == 'aprobado'
+              && !('motivo' in request.resource.data)
+              && existsAfter(rutaTrabalenguas(envioId))))
+        && getAfter(rutaUsuario(resource.data.autorId)).data.get('enviosPendientes', 0)
+          == get(rutaUsuario(resource.data.autorId)).data.get('enviosPendientes', 0) - 1;
+
+      allow delete: if false;
     }
 
     // Cualquier otra colección queda cerrada.
